@@ -1,11 +1,11 @@
 const mysql = require("mysql2");
-
+const { USER, DATABASE, HOST, PASSWORD } = require("../index");
 const pool = mysql
   .createPool({
-    host: process.env.MYSQL_HOST || "localhost",
-    user: process.env.MYSQL_USER || "root",
-    password: process.MYSQL_PASSWORD || "toor",
-    database: process.env.MYSQL_DATABASE || "youtube",
+    host: HOST || "localhost",
+    user: USER || "root",
+    password: PASSWORD || "toor",
+    database: DATABASE || "youtube",
   })
   .promise();
 
