@@ -1,14 +1,15 @@
 const pool = require("../db/connection.db.js");
 const HttpStatusCodes = require("../utils/constans.js");
+
 async function getAllUsers(req, res) {
   try {
     const query = "SELECT firstname, lastname, username, email FROM users";
     const [rows] = await pool.query(query);
-    return res.status(200).json({ rows });
+    return res.status(HttpStatusCodes.OK).json({ rows });
   } catch (error) {
     console.error("Error while fetching Data: " + error);
     return res
-      .status(500)
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: HttpStatusCodes.INTERNAL_SERVER_ERROR });
   }
 }
@@ -33,7 +34,7 @@ async function getUser(req, res) {
   }
 }
 
-async function createUser(req, res) {
+async function registerUser(req, res) {
   try {
     const {
       username,
@@ -44,6 +45,8 @@ async function createUser(req, res) {
       coverImage,
       password,
     } = req.body;
+
+    // Check if any required field is empty
     if (
       [username, email, password, firstname].some(
         (field) => field.trim() === ""
@@ -51,8 +54,21 @@ async function createUser(req, res) {
     ) {
       throw new Error("All fields are required");
     }
-    const query = `INSERT INTO USERS(username,email,firstname,lastname,avatar,coverImage,password) VALUES(?,?,?,?,?,?,?)`;
-    const values = [
+
+    // Check if user already exists
+    const userExistsQuery = `SELECT * FROM USERS WHERE username = ? OR email = ?`;
+    const userExistsValues = [username, email];
+    const [existingUsers] = await pool.query(userExistsQuery, userExistsValues);
+
+    if (existingUsers.length > 0) {
+      return res
+        .status(HttpStatusCodes.CONFLICT)
+        .json({ message: "User already exists" });
+    }
+
+    // Insert new user if user does not exist
+    const insertQuery = `INSERT INTO USERS(username, email, firstname, lastname, avatar, coverImage, password) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+    const insertValues = [
       username,
       email,
       firstname,
@@ -61,10 +77,43 @@ async function createUser(req, res) {
       coverImage,
       password,
     ];
-    const [result] = await pool.query(query, values);
-    return res.status(200).json(result);
+    const [result] = await pool.query(insertQuery, insertValues);
+
+    return res.status(HttpStatusCodes.OK).json(result);
   } catch (error) {
     console.log(`Error: ${error.message}`);
+    return res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
+  }
+}
+
+async function loginUser(req, res) {
+  try {
+    const { email, password } = req.body;
+    if (!(email && password)) {
+      return res
+        .status(HttpStatusCodes.UNAUTHORIZED)
+        .json({ success: false, msg: "all fields are required" });
+    }
+    // check if the user exists
+    const userExistsQuery = `SELECT email,password FROM USERS WHERE email = ?`;
+    const userExistsValues = [email];
+    const [existingUsers] = await pool.query(userExistsQuery, userExistsValues);
+    // user doesn't exists
+    if (existingUsers.length === 0) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ message: "User doesnt exists" });
+    }
+    return res
+      .status(HttpStatusCodes.OK)
+      .json({ success: true, user: existingUsers });
+  } catch (error) {
+    console.log("Error has occurred: ", error);
+    return res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, error: error });
   }
 }
 
@@ -119,7 +168,8 @@ async function deleteUser(req, res) {
 module.exports = {
   getAllUsers,
   getUser,
-  createUser,
+  registerUser,
   updateUser,
   deleteUser,
+  loginUser,
 };

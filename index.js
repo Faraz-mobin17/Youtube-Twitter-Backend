@@ -5,6 +5,8 @@ const path = {
   PASS: process.env.MYSQL_PASS,
   USER: process.env.MYSQL_USER,
   DATABASE: process.env.MYSQL_DATABASE,
+  SECRET_KEY: process.env.SECRET_KEY,
+  EXPIRES_IN: process.env.EXPIRES_IN,
 };
 
 module.exports = path;
