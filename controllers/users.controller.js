@@ -1,13 +1,32 @@
-const pool = require("../db/connection.db.js");
+const db = require("../db/connection.db.js");
 const HttpStatusCodes = require("../utils/constans.js");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { SECRET_KEY, EXPIRES_IN } = require("../index.js");
 
-async function getAllUsers(req, res) {
+async function generateToken(user) {
+  try {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    };
+    const expiresIn = {
+      expiresIn: EXPIRES_IN,
+    };
+    return await jwt.sign(payload, SECRET_KEY, expiresIn);
+  } catch (error) {
+    console.log("Error at generateToken method", error.message);
+    throw error;
+  }
+}
+async function getAllUsers(_, res) {
   try {
     const query = "SELECT firstname, lastname, username, email FROM users";
-    const [rows] = await pool.query(query);
+    const [rows] = await db.query(query);
     return res.status(HttpStatusCodes.OK).json({ rows });
   } catch (error) {
-    console.error("Error while fetching Data: " + error);
+    console.error("Error while fetching Data: " + error.message);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: HttpStatusCodes.INTERNAL_SERVER_ERROR });
@@ -17,7 +36,7 @@ async function getAllUsers(req, res) {
 async function getUser(req, res) {
   try {
     const userId = Number(req.params.id) || 1;
-    const [user] = await pool.query(`SELECT username FROM USERS WHERE id= ?`, [
+    const [user] = await db.query(`SELECT username FROM USERS WHERE id= ?`, [
       userId,
     ]);
     if (!user) {
@@ -54,11 +73,13 @@ async function registerUser(req, res) {
     ) {
       throw new Error("All fields are required");
     }
-
+    // hash the password
+    let hashPassword = await bcrypt.hash(password, 10);
+    hashPassword = hashPassword.toString();
     // Check if user already exists
     const userExistsQuery = `SELECT * FROM USERS WHERE username = ? OR email = ?`;
     const userExistsValues = [username, email];
-    const [existingUsers] = await pool.query(userExistsQuery, userExistsValues);
+    const [existingUsers] = await db.query(userExistsQuery, userExistsValues);
 
     if (existingUsers.length > 0) {
       return res
@@ -75,11 +96,11 @@ async function registerUser(req, res) {
       lastname,
       avatar,
       coverImage,
-      password,
+      hashPassword,
     ];
-    const [result] = await pool.query(insertQuery, insertValues);
+    const [result] = await db.query(insertQuery, insertValues);
 
-    return res.status(HttpStatusCodes.OK).json(result);
+    return res.status(HttpStatusCodes.OK).json({ success: true, result });
   } catch (error) {
     console.log(`Error: ${error.message}`);
     return res
@@ -97,18 +118,38 @@ async function loginUser(req, res) {
         .json({ success: false, msg: "all fields are required" });
     }
     // check if the user exists
-    const userExistsQuery = `SELECT email,password FROM USERS WHERE email = ?`;
+    const userExistsQuery = `SELECT * FROM USERS WHERE email = ?`;
     const userExistsValues = [email];
-    const [existingUsers] = await pool.query(userExistsQuery, userExistsValues);
+    const [existingUsers] = await db.query(userExistsQuery, userExistsValues);
     // user doesn't exists
     if (existingUsers.length === 0) {
       return res
         .status(HttpStatusCodes.BAD_REQUEST)
         .json({ message: "User doesnt exists" });
     }
-    return res
-      .status(HttpStatusCodes.OK)
-      .json({ success: true, user: existingUsers });
+    const user = existingUsers[0];
+    console.log(typeof user); // object
+    // verify password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res
+        .status(HttpStatusCodes.UNAUTHORIZED)
+        .json({ error: "Invalid credentials" });
+    }
+    const token = await generateToken(user);
+    console.log("token: ", token);
+    user.token = token;
+    user.password = undefined; // dont want to send password to the user
+    // send token in user cookie
+    const options = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: true,
+    };
+    return res.status(HttpStatusCodes.OK).cookie("token", token, options).json({
+      success: true,
+      user,
+    });
   } catch (error) {
     console.log("Error has occurred: ", error);
     return res
@@ -116,14 +157,23 @@ async function loginUser(req, res) {
       .json({ success: false, error: error });
   }
 }
-
+async function logoutUser(req, res) {
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(HttpStatusCodes.OK)
+    .clearCookie("token", options)
+    .json({ user: req.user.firstname, msg: "User logged out" });
+}
 async function updateUser(req, res) {
   const userId = Number(req.params.id) || 1;
   const { columnToUpdate, value } = req.body;
   try {
     const query = `UPDATE USERS SET ?? = ? WHERE id = ?`;
     const values = [columnToUpdate, value, userId];
-    const [result] = await pool.query(query, values);
+    const [result] = await db.query(query, values);
 
     if (result.affectedRows === 0) {
       return res
@@ -147,7 +197,7 @@ async function deleteUser(req, res) {
   try {
     const query = "DELETE FROM USERS WHERE id = ?";
     const value = [userId];
-    const [result] = await pool.query(query, value);
+    const [result] = await db.query(query, value);
     if (result.affectedRows === 0) {
       return res
         .status(HttpStatusCodes.BAD_REQUEST)
@@ -172,4 +222,5 @@ module.exports = {
   updateUser,
   deleteUser,
   loginUser,
+  logoutUser,
 };
