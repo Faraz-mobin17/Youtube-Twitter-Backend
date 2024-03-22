@@ -36,9 +36,9 @@ async function getAllUsers(_, res) {
 async function getUser(req, res) {
   try {
     const userId = Number(req.params.id) || 1;
-    const [user] = await db.query(`SELECT username FROM USERS WHERE id= ?`, [
-      userId,
-    ]);
+    const query = `SELECT username FROM USERS WHERE id= ?`;
+    const value = [userId];
+    const [user] = await db.query(query, value);
     if (!user) {
       return res
         .status(HttpStatusCodes.NOT_FOUND)
@@ -215,6 +215,8 @@ async function deleteUser(req, res) {
   }
 }
 
+async function changeCurrentPassword(req, res) {}
+
 module.exports = {
   getAllUsers,
   getUser,
@@ -223,4 +225,5 @@ module.exports = {
   deleteUser,
   loginUser,
   logoutUser,
+  changeCurrentPassword,
 };
