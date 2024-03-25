@@ -1,5 +1,7 @@
 const db = require("../db/connection.db.js");
 const HttpStatusCodes = require("../utils/constans.js");
+const ApiResponse = require("../utils/ApiResponse.js");
+const ApiError = require("../utils/ApiError.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { SECRET_KEY, EXPIRES_IN } = require("../index.js");
@@ -22,14 +24,22 @@ async function generateToken(user) {
 }
 async function getAllUsers(_, res) {
   try {
-    const query = "SELECT firstname, lastname, username, email FROM users";
+    const query = "SELECT id,firstname, lastname, username, email FROM users";
     const [rows] = await db.query(query);
-    return res.status(HttpStatusCodes.OK).json({ rows });
+    return res
+      .status(HttpStatusCodes.OK)
+      .json(new ApiResponse(HttpStatusCodes.OK, rows));
   } catch (error) {
     console.error("Error while fetching Data: " + error.message);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: HttpStatusCodes.INTERNAL_SERVER_ERROR });
+      .json(
+        new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          error.message,
+          error
+        )
+      );
   }
 }
 
@@ -42,14 +52,22 @@ async function getUser(req, res) {
     if (!user) {
       return res
         .status(HttpStatusCodes.NOT_FOUND)
-        .json({ message: "User not found" });
+        .json(new ApiError(HttpStatusCodes.NOT_FOUND, "User not found"));
     }
-    return res.status(HttpStatusCodes.OK).json({ user });
+    return res
+      .status(HttpStatusCodes.OK)
+      .json(new ApiResponse(HttpStatusCodes.OK, user));
   } catch (error) {
     console.error("Error while fetching User: ", error);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ error: "An error occurred while fetching the user." });
+      .json(
+        new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          error.message,
+          error
+        )
+      );
   }
 }
 
@@ -84,7 +102,7 @@ async function registerUser(req, res) {
     if (existingUsers.length > 0) {
       return res
         .status(HttpStatusCodes.CONFLICT)
-        .json({ message: "User already exists" });
+        .json(new ApiError(HttpStatusCodes.CONFLICT, "User doesnt exists"));
     }
 
     // Insert new user if user does not exist
@@ -100,12 +118,25 @@ async function registerUser(req, res) {
     ];
     const [result] = await db.query(insertQuery, insertValues);
 
-    return res.status(HttpStatusCodes.OK).json({ success: true, result });
+    return res
+      .status(HttpStatusCodes.OK)
+      .json(
+        new ApiResponse(
+          HttpStatusCodes.OK,
+          result,
+          "User registered successfully"
+        )
+      );
   } catch (error) {
     console.log(`Error: ${error.message}`);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ error: error.message });
+      .json(
+        new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          "Unable to register user"
+        )
+      );
   }
 }
 
@@ -125,7 +156,7 @@ async function loginUser(req, res) {
     if (existingUsers.length === 0) {
       return res
         .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ message: "User doesnt exists" });
+        .json(new ApiError(HttpStatusCodes.BAD_REQUEST, "User doesnt exists"));
     }
     const user = existingUsers[0];
     console.log(typeof user); // object
@@ -134,7 +165,9 @@ async function loginUser(req, res) {
     if (!passwordMatch) {
       return res
         .status(HttpStatusCodes.UNAUTHORIZED)
-        .json({ error: "Invalid credentials" });
+        .json(
+          new ApiError(HttpStatusCodes.UNAUTHORIZED, "Invalid users credential")
+        );
     }
     const token = await generateToken(user);
     console.log("token: ", token);
@@ -146,15 +179,15 @@ async function loginUser(req, res) {
       httpOnly: true,
       secure: true,
     };
-    return res.status(HttpStatusCodes.OK).cookie("token", token, options).json({
-      success: true,
-      user,
-    });
+    return res
+      .status(HttpStatusCodes.OK)
+      .cookie("token", token, options)
+      .json(new ApiResponse(HttpStatusCodes.OK, user));
   } catch (error) {
     console.log("Error has occurred: ", error);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, error: error });
+      .json(new ApiError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message));
   }
 }
 async function logoutUser(req, res) {
@@ -168,7 +201,7 @@ async function logoutUser(req, res) {
     .json({ user: req.user.firstname, msg: "User logged out" });
 }
 async function updateUser(req, res) {
-  const userId = Number(req.params.id) || 1;
+  const userId = Number(req.params?.id) || 1;
   const { columnToUpdate, value } = req.body;
   try {
     const query = `UPDATE USERS SET ?? = ? WHERE id = ?`;
@@ -178,17 +211,22 @@ async function updateUser(req, res) {
     if (result.affectedRows === 0) {
       return res
         .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ success: false, msg: "User not found or not updated" });
+        .json(new ApiError(HttpStatusCodes.BAD_REQUEST, "User not updated"));
     }
 
     return res
       .status(HttpStatusCodes.OK)
-      .json({ success: true, msg: "User updated" });
+      .json(new ApiResponse(HttpStatusCodes.OK, "User updated"));
   } catch (error) {
-    logger.error("Error while updating user:", error.message);
+    console.error("Error while updating user:", error.message);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, msg: "An error occurred" });
+      .json(
+        new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          "an error occured in update User controller"
+        )
+      );
   }
 }
 
@@ -201,21 +239,64 @@ async function deleteUser(req, res) {
     if (result.affectedRows === 0) {
       return res
         .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ success: false, msg: "User not found or not updated" });
+        .json(new ApiError(HttpStatusCodes.BAD_REQUEST, "User not deleted"));
     }
 
     return res
       .status(HttpStatusCodes.OK)
-      .json({ success: true, msg: "User Deleted Successfully" });
+      .json(new ApiResponse(HttpStatusCodes.OK, "User deleted successfully"));
   } catch (error) {
-    logger.error("Error while deleting user:", error.message);
+    console.error("Error while deleting user:", error.message);
     return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, msg: "An error occurred" });
+      .json(
+        new ApiError(HttpStatusCodes.INTERNAL_SERVER_ERROR, "User not deleted")
+      );
   }
 }
 
-async function changeCurrentPassword(req, res) {}
+async function changeCurrentPassword(req, res) {
+  const { oldPassword, newPassword } = req.body;
+  try {
+    if (!(oldPassword && newPassword)) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json(
+          new ApiError(HttpStatusCodes.BAD_REQUEST, "all fields are required")
+        );
+    }
+    const userId = req.user?.id;
+    const query = `SELECT password FROM USERS WHERE id = ?`;
+    const value = [userId];
+    const [user] = await db.query(query, value);
+    const isPasswordCorrect = await bcrypt.compare(
+      oldPassword,
+      user[0].password
+    );
+    if (!isPasswordCorrect) {
+      throw new ApiError(HttpStatusCodes.BAD_REQUEST, "Password doesnt match");
+    }
+    let hashPassword = await bcrypt.hash(newPassword, 10);
+    hashPassword = hashPassword.toString();
+    user[0].password = hashPassword;
+    return res
+      .status(HttpStatusCodes.OK)
+      .json(
+        new ApiResponse(HttpStatusCodes.OK, {}, "password changed Successfully")
+      );
+  } catch (error) {
+    console.log("Error:", error.message);
+    return res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          error.message,
+          error
+        )
+      );
+  }
+}
 
 module.exports = {
   getAllUsers,
