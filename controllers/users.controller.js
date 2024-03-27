@@ -8,21 +8,23 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 import { SECRET_KEY, EXPIRES_IN } from "../index.js";
 
-const generateToken = asyncHandler(async (user) => {
+const generateToken = async (user) => {
+  // console.log("generate Token method", user);
   try {
     const payload = {
       id: user.id,
       email: user.email,
       username: user.username,
     };
-    return jwt.sign(payload, SECRET_KEY, EXPIRES_IN);
+    return await jwt.sign(payload, SECRET_KEY, { expiresIn: EXPIRES_IN });
   } catch (error) {
     console.log("Error at generateToken method", error.message);
     throw error;
   }
-});
+};
+
 const getAllUsers = asyncHandler(async (_, res) => {
-  const query = "SELECT id, firstname, lastname, username, email FROM users";
+  const query = "SELECT * FROM Users";
   const [rows] = await db.query(query);
 
   if (rows.length === 0) {
@@ -33,15 +35,14 @@ const getAllUsers = asyncHandler(async (_, res) => {
     .status(HttpStatusCodes.OK)
     .json(new ApiResponse(HttpStatusCodes.OK, rows));
 });
+
 const getUser = asyncHandler(async (req, res) => {
   const userId = Number(req.params.id) || 1;
   const query = `SELECT username FROM USERS WHERE id= ?`;
   const value = [userId];
   const [user] = await db.query(query, value);
-  if (!user) {
-    return res
-      .status(HttpStatusCodes.NOT_FOUND)
-      .json(new ApiError(HttpStatusCodes.NOT_FOUND, "User not found"));
+  if (user.length === 0) {
+    throw new ApiError(400, "user not found");
   }
   return res
     .status(HttpStatusCodes.OK)
@@ -64,9 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // Check if user already exists
 
   if (!(await userExists(username, email))) {
-    return res
-      .status(HttpStatusCodes.CONFLICT)
-      .json(new ApiError(HttpStatusCodes.CONFLICT, "User doesnt exists"));
+    throw new ApiError(HttpStatusCodes.CONFLICT, "User already exists");
   }
 
   // Insert new user if user does not exist
@@ -93,35 +92,32 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 });
 
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  if (!(email && password)) {
+const loginUser = asyncHandler(async (req, res, next) => {
+  const { username, email, password } = req.body;
+  if (!(email && password && username)) {
     return res
       .status(HttpStatusCodes.UNAUTHORIZED)
       .json(
         new ApiError(HttpStatusCodes.UNAUTHORIZED, "All fields are required")
       );
   }
-  const existingUsers = await userExists(email);
+  const query = `SELECT * FROM USERS WHERE email = ? OR username = ?`;
+  const values = [email, username];
+  const [userExists] = await db.query(query, values);
+  // console.log(userExists);
   // user doesn't exists
-  if (!existingUsers) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json(new ApiError(HttpStatusCodes.BAD_REQUEST, "User doesnt exists"));
+  if (!userExists) {
+    throw new ApiError(404, "User does not exists");
   }
-  const user = existingUsers[0];
-  console.log(typeof user); // object
+  const user = userExists[0];
+  // console.log(" User: ", user); // object
   // verify password
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
-    return res
-      .status(HttpStatusCodes.UNAUTHORIZED)
-      .json(
-        new ApiError(HttpStatusCodes.UNAUTHORIZED, "Invalid users credential")
-      );
+    throw new ApiError(401, "Password Incorrect");
   }
   const token = await generateToken(user);
-  console.log("token: ", token);
+  // console.log("token: ", token);
   user.token = token;
   user.password = undefined; // dont want to send password to the user
   // send token in user cookie
@@ -173,9 +169,7 @@ const deleteUser = asyncHandler(async (req, res) => {
   const value = [userId];
   const [result] = await db.query(query, value);
   if (result.affectedRows === 0) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json(new ApiError(HttpStatusCodes.BAD_REQUEST, "User not deleted"));
+    throw new ApiError(500, "user doesn't exists");
   }
 
   return res

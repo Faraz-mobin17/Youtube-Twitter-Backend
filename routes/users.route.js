@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import verifyJWT from "../middlewares/auth.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   getAllUsers,
   getUser,

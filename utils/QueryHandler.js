@@ -5,7 +5,7 @@ async function userExists(username = "", email) {
     `SELECT username,email FROM USERS WHERE username = ? OR email = ?`,
     [username, email]
   );
-  if (!existingUsers) {
+  if (existingUsers.length !== 0) {
     return false;
   }
   return existingUsers;
