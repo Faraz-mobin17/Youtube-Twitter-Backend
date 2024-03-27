@@ -1,10 +1,11 @@
-const db = require("../db/connection.db.js");
-const HttpStatusCodes = require("../utils/constans.js");
-const ApiResponse = require("../utils/ApiResponse.js");
-const ApiError = require("../utils/ApiError.js");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { SECRET_KEY, EXPIRES_IN } = require("../index.js");
+import db from "../db/connection.db.js";
+import HttpStatusCodes from "../utils/CONSTANTS.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
+import { SECRET_KEY, EXPIRES_IN } from "../index.js";
 
 async function generateToken(user) {
   try {
@@ -297,8 +298,14 @@ async function changeCurrentPassword(req, res) {
       );
   }
 }
+async function updateAvatar(req, res) {
+  // update avatar of the user
+}
 
-module.exports = {
+async function updateCoverImage(req, res) {
+  // update coverimage of the user
+}
+export {
   getAllUsers,
   getUser,
   registerUser,

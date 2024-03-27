@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const HttpStatusCodes = require("../utils/constans");
-const { SECRET_KEY } = require("../index");
-const db = require("../db/connection.db");
+import jwt from "jsonwebtoken";
+import { HttpStatusCodes } from "../utils/CONSTANTS.js";
+import { SECRET_KEY } from "../index.js";
+import db from "../db/connection.db.js";
 
 async function verifyJWT(req, res, next) {
   try {
@@ -42,4 +42,4 @@ async function verifyJWT(req, res, next) {
   }
 }
 
-module.exports = verifyJWT;
+export default verifyJWT;

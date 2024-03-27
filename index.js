@@ -1,4 +1,5 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const path = {
   HOST: process.env.MYSQL_HOST,
@@ -9,4 +10,4 @@ const path = {
   EXPIRES_IN: process.env.EXPIRES_IN,
 };
 
-module.exports = path;
+export default path;

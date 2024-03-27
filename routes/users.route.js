@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const verifyJWT = require("../middlewares/auth.middleware.js");
-const {
+import verifyJWT from "../middlewares/auth.middleware.js";
+import {
   getAllUsers,
   getUser,
   registerUser,
@@ -9,7 +9,8 @@ const {
   logoutUser,
   updateUser,
   deleteUser,
-} = require("../controllers/users.controller.js");
+} from "../controllers/users.controller.js";
+
 /* GET users listing. */
 router.get("/", verifyJWT, getAllUsers);
 router.post("/register", registerUser);
@@ -20,4 +21,5 @@ router
   .get(verifyJWT, getUser)
   .patch(verifyJWT, updateUser)
   .delete(verifyJWT, deleteUser);
-module.exports = router;
+
+export default router;
