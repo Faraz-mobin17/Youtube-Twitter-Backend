@@ -35,7 +35,7 @@ CREATE TABLE Videos (
     INDEX title_idx (title),
     INDEX description_idx (description)
 );
-
+ALTER TABLE videos ADD FULLTEXT(title);
 CREATE TABLE WatchHistory (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE, 
