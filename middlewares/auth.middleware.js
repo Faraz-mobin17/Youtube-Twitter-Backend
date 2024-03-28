@@ -6,7 +6,7 @@ import { ApiError } from "../utils/ApiHandler.js";
 console.log("SECRET_KEY dt: ", SECRET_KEY);
 const verifyJWT = async (req, res, next) => {
   try {
-    console.log("User cookies from auth file: ", req.cookies);
+    // console.log("User cookies from auth file: ", req.cookies);
     let token =
       req.cookies.token ||
       (req.headers.authorization &&
@@ -19,7 +19,7 @@ const verifyJWT = async (req, res, next) => {
     }
 
     const decodedToken = jwt.verify(token, SECRET_KEY);
-    console.log(decodedToken);
+    // console.log(decodedToken);
     const query = `SELECT id, username, email, firstname, lastname FROM Users WHERE id = ?`;
     const values = [decodedToken.id];
 
