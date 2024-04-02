@@ -4,16 +4,15 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 
-import usersRouter from "./routes/users.route.js";
+import usersRouter from "./src/routes/users.route.js";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import connectDB from "./db/connection.db.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "src/views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));

@@ -1,8 +1,6 @@
 CREATE DATABASE IF NOT EXISTS Youtube;
-USE Youtube;
-show tables;
 use youtube;
-select * from videos;
+
 
 CREATE TABLE Users (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -21,7 +19,7 @@ CREATE TABLE Users (
 
 CREATE TABLE Videos (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE, 
+    user_id INT NOT NULL,
     videoFile VARCHAR(255) NOT NULL,
     thumbnail VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -31,11 +29,13 @@ CREATE TABLE Videos (
     isPublished BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     INDEX user_id_idx (user_id),
     INDEX title_idx (title),
-    INDEX description_idx (description)
+    INDEX description_idx (description(255)) -- Specify a key length for the description column
 );
-ALTER TABLE videos ADD FULLTEXT(title);
+
+
 CREATE TABLE WatchHistory (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE, 
@@ -98,3 +98,5 @@ CREATE TABLE Playlists (
     INDEX name_idx (name),
     INDEX description_idx (description)
 );
+
+ALTER TABLE videos ADD FULLTEXT(title);

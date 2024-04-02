@@ -1,10 +1,10 @@
 import mysql from "mysql2/promise";
-import { USER, DATABASE, HOST, PASS } from "../index.js";
+import { USER, DATABASE, HOST, PASS } from "../../index.js";
 
 // mysql://root:password@localhost:3306/test
 const connectDB = async () => {
   try {
-    const pool = await mysql.createPool({
+    const pool = mysql.createPool({
       host: HOST,
       user: USER,
       password: PASS,
@@ -21,5 +21,5 @@ const connectDB = async () => {
   }
 };
 
-const db = connectDB();
+const db = await connectDB();
 export default db;

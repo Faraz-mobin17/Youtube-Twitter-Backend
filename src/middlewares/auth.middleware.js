@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-import { HttpStatusCodes } from "../utils/CONSTANTS.js";
-import { SECRET_KEY } from "../index.js";
+import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
+import { SECRET_KEY } from "../../index.js";
 import db from "../db/connection.db.js";
-import { ApiError } from "../utils/ApiHandler.js";
-console.log("SECRET_KEY dt: ", SECRET_KEY);
+import { ApiError } from "../utils/ApiHandler.utils.js";
+
 const verifyJWT = async (req, res, next) => {
   try {
     // console.log("User cookies from auth file: ", req.cookies);
