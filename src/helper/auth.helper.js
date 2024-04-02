@@ -18,6 +18,10 @@ class AuthService {
     }
   }
 
+  static async verifyJwtToken(token) {
+    return jwt.verify(token, SECRET_KEY);
+  }
+
   static async getHashPassword(password) {
     let hashPassword = await bcrypt.hash(password, 10);
     hashPassword = hashPassword.toString();

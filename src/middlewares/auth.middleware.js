@@ -1,8 +1,7 @@
-import jwt from "jsonwebtoken";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-import { SECRET_KEY } from "../../index.js";
-import db from "../db/connection.db.js";
+import User from "../models/User.model.js";
 import { ApiError } from "../utils/ApiHandler.utils.js";
+import AuthService from "../helper/auth.helper.js";
 
 const verifyJWT = async (req, res, next) => {
   try {
@@ -18,15 +17,15 @@ const verifyJWT = async (req, res, next) => {
         .json({ success: false, msg: "Token not found" });
     }
 
-    const decodedToken = jwt.verify(token, SECRET_KEY);
+    const decodedToken = await AuthService.verifyJwtToken(token);
     // console.log(decodedToken);
-    const query = `SELECT id, username, email, firstname, lastname FROM Users WHERE id = ?`;
-    const values = [decodedToken.id];
+    // const query = `SELECT id, username, email, firstname, lastname FROM Users WHERE id = ?`;
+    // const values = [decodedToken.id];
 
-    const [result] = await db.query(query, values);
+    // const [result] = await db.query(query, values);
 
-    const user = result[0];
-
+    // const user = result[0];
+    const user = await User.findById("users", { id: decodedToken.id });
     if (!user) {
       throw new ApiError(400, "User not found auth middleware");
     }
