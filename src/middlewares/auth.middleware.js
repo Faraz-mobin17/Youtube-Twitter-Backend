@@ -1,8 +1,10 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-import User from "../models/User.model.js";
 import { ApiError } from "../utils/ApiHandler.utils.js";
 import AuthService from "../helper/auth.helper.js";
-
+import { UserService } from "../service/user.service.js";
+import { UserRepository } from "../repositories/user.repository.js";
+import db from "../db/connection.db.js";
+const userservice = new UserService(new UserRepository(db));
 const verifyJWT = async (req, res, next) => {
   try {
     // console.log("User cookies from auth file: ", req.cookies);
@@ -14,9 +16,8 @@ const verifyJWT = async (req, res, next) => {
     if (!token) {
       return res
         .status(HttpStatusCodes.UNAUTHORIZED)
-        .json({ success: false, msg: "Token not found" });
+        .json({ success: false, msg: "User not logged in" });
     }
-
     const decodedToken = await AuthService.verifyJwtToken(token);
     // console.log(decodedToken);
     // const query = `SELECT id, username, email, firstname, lastname FROM Users WHERE id = ?`;
@@ -25,7 +26,8 @@ const verifyJWT = async (req, res, next) => {
     // const [result] = await db.query(query, values);
 
     // const user = result[0];
-    const user = await User.findById("users", { id: decodedToken.id });
+
+    const user = await userservice.getUser(decodedToken.id);
     if (!user) {
       throw new ApiError(400, "User not found auth middleware");
     }

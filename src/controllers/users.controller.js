@@ -1,11 +1,16 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import User from "../models/User.model.js";
 import AuthService from "../helper/auth.helper.js";
+import { UserService } from "../service/user.service.js";
+import { UserRepository } from "../repositories/user.repository.js";
+import db from "../db/connection.db.js"; // Import your Database class instance
+
+// Modify the instantiation of UserService to use the Database instanc
+const User = new UserService(new UserRepository(db));
 
 const getAllUsers = asyncHandler(async (_, res) => {
-  const user = await User.findAll("users");
+  const user = await User.getAllUsers();
   if (!user) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "User not found");
   }
@@ -16,7 +21,7 @@ const getAllUsers = asyncHandler(async (_, res) => {
 
 const getUser = asyncHandler(async (req, res) => {
   const userId = Number(req.params.id) || 1;
-  const user = await User.findById("users", userId);
+  const user = await User.getUser(userId);
   if (!user) {
     throw new ApiError(400, "user not found");
   }
@@ -26,37 +31,22 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-  try {
-    const id = Number(req.params.id) || 1; // Correct parsing of id
-    // Update user record
-    const result = await User.update("users", req.body, { id });
+  const id = Number(req.params.id) || 1;
 
-    // Check if user was updated successfully
-    if (!result) {
-      throw new ApiError(HttpStatusCodes.CONFLICT, "User not updated");
-    }
+  const result = await User.updateUser(req.body, id);
 
-    // Return success response
-    return res
-      .status(HttpStatusCodes.OK)
-      .json(new ApiResponse(HttpStatusCodes.OK, "User updated"));
-  } catch (error) {
-    // Handle errors
-    console.error("Error updating user:", error.message);
-    return res
-      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        new ApiResponse(
-          HttpStatusCodes.INTERNAL_SERVER_ERROR,
-          "Failed to update user"
-        )
-      );
+  if (!result) {
+    throw new ApiError(HttpStatusCodes.CONFLICT, "User not updated");
   }
+
+  return res
+    .status(HttpStatusCodes.OK)
+    .json(new ApiResponse(HttpStatusCodes.OK, "User updated"));
 });
 
 const deleteUser = asyncHandler(async (req, res) => {
   const userId = Number(req.params.id);
-  const user = await User.remove("users", { id: userId });
+  const user = await User.deleteUser(userId);
   if (!user) {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "User not delete");
   }
@@ -65,7 +55,44 @@ const deleteUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(HttpStatusCodes.OK, "User deleted successfully"));
 });
 
+const loginUser = asyncHandler(async (req, res) => {
+  const response = await User.loginUser(req.email, req.password);
+  const options = {
+    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(HttpStatusCodes.OK)
+    .cookie("token", response.token, options)
+    .json(new ApiResponse(HttpStatusCodes.OK, response));
+});
+const logoutUser = asyncHandler(async (_, res) => {
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(HttpStatusCodes.OK)
+    .clearCookie("token", options)
+    .json({ msg: "User logged out" });
+});
+const registerUser = asyncHandler(async (req, res) => {
+  console.log("Inside registerUser controller", req.username, req.email);
+  const response = await User.registerUser(req.body);
+  return res
+    .status(HttpStatusCodes.CREATED)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.CREATED,
+        response,
+        "User registered successfully"
+      )
+    );
+});
 const changeCurrentPassword = asyncHandler(async (req, res) => {
+  // not updated
   const { oldPassword, newPassword } = req.body;
 
   if (!(oldPassword && newPassword)) {
@@ -119,4 +146,13 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   // update coverimage of the user
 });
 
-export { getAllUsers, getUser, changeCurrentPassword, updateUser, deleteUser };
+export {
+  getAllUsers,
+  getUser,
+  changeCurrentPassword,
+  updateUser,
+  deleteUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+};

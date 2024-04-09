@@ -1,9 +1,8 @@
 import db from "../db/connection.db.js";
 import { ApiError } from "../utils/ApiHandler.utils.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-
-class Model {
-  static async findById(table, userId) {
+class UserRepository {
+  async findById(table, userId) {
     try {
       const query = `SELECT * FROM ${table} WHERE id = ?`;
       const [rows] = await db.execute(query, [userId]);
@@ -16,7 +15,7 @@ class Model {
     }
   }
 
-  static async findOne(table, criteria) {
+  async findOne(table, criteria) {
     try {
       let query = `SELECT * FROM ${table} WHERE `;
       const keys = Object.keys(criteria);
@@ -37,7 +36,7 @@ class Model {
     }
   }
 
-  static async findAll(table, criteria = {}) {
+  async findAll(table, criteria = {}) {
     try {
       let query = `SELECT * FROM ${table}`;
       if (Object.keys(criteria).length > 0) {
@@ -59,7 +58,7 @@ class Model {
     }
   }
 
-  static async create(table, data) {
+  async create(table, data) {
     try {
       if (Object.keys(data).length === 0) {
         throw new Error("No data provided for insertion");
@@ -83,7 +82,7 @@ class Model {
   }
   // Assuming you've established a database connection and imported the necessary modules
 
-  static async update(table, data, criteria) {
+  async update(table, data, criteria) {
     try {
       if (Object.keys(data).length === 0) {
         throw new Error("No data provided to update");
@@ -116,7 +115,7 @@ class Model {
     }
   }
 
-  static async remove(table, criteria) {
+  async remove(table, criteria) {
     try {
       if (Object.keys(criteria).length === 0) {
         throw new Error("No criteria provided for deletion");
@@ -137,4 +136,4 @@ class Model {
   }
 }
 
-export default Model;
+export default UserRepository;

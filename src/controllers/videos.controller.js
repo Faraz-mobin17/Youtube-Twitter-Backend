@@ -1,6 +1,5 @@
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import db from "../db/connection.db.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 
 class VideoController {
@@ -9,18 +8,13 @@ class VideoController {
     if (!title) {
       throw new ApiError("title is required");
     }
-    const query = `SELECT * FROM Videos WHERE MATCH(title) AGAINST(? IN NATURAL LANGUAGE MODE)`;
-    const value = [title];
-    const [rows] = await db.execute(query, value);
-    if (rows.length === 0) {
-      throw new ApiError(HttpStatusCodes.BAD_REQUEST, "Videos not found");
-    }
+    const video = await VideoModel.getAllVideos(title);
     return res
       .status(HttpStatusCodes.OK)
       .json(
         new ApiResponse(
           HttpStatusCodes.OK,
-          rows,
+          video,
           "Videos feteched successfully"
         )
       );
@@ -31,18 +25,13 @@ class VideoController {
     if (!id) {
       throw new ApiError("id required");
     }
-    const query = `SELECT * FROM Videos WHERE user_id = ?`;
-    const user_id = id;
-    const [rows] = await db.execute(query, user_id);
-    if (rows.length === 0) {
-      throw new ApiError(400, "Videos not found");
-    }
+    const video = await Video.findById("videos", { user_id: id });
     return res
       .status(HttpStatusCodes.OK)
       .json(
         new ApiResponse(
           HttpStatusCodes.OK,
-          rows,
+          video,
           "Videos feteched successfully"
         )
       );
@@ -59,23 +48,21 @@ class VideoController {
     if (!title || !description || !thumbnail) {
       throw new ApiError(400, "need title , description and thumbnail");
     }
-    //   check if video exists or not
-    const videoExistsQuery = `SELECT user_id FROM Vidoes WHERE user_id = ?`;
-    const videoValues = [videoId];
-    const [videoExistsRow] = await db.execute(videoExistsQuery, videoValues);
-    if (videoExistsRow.length === 0) {
-      throw new ApiError(400, "Video doesnt exists");
+
+    const video = await Video.findById("videos", { user_id: videoId });
+    if (!video) {
+      throw new ApiError(HttpStatusCodes.NOT_FOUND, "Video not found");
     }
-    const query = `UPDATE Videos SET title = ? description = ? thumbnail = ?`;
-    const values = [title, description, thumbnail];
-    const [rows] = await db.execute(query, values);
-    if (rows.length === 0) {
-      throw new ApiError(400, "Video not updated");
-    }
+
+    const updateVideo = await Video.update("videos", req.body);
     return res
       .status(HttpStatusCodes.OK)
       .json(
-        new ApiResponse(HttpStatusCodes.OK, rows, "Video updated Successfully")
+        new ApiResponse(
+          HttpStatusCodes.OK,
+          updateVideo,
+          "Video updated Successfully"
+        )
       );
   });
 
@@ -85,24 +72,23 @@ class VideoController {
       throw new ApiError(400, "Video Id required");
     }
 
-    //   check if video exists or not
-    const videoExistsQuery = `SELECT user_id FROM Videos WHERE id = ?`;
-    const videoValues = [id];
-    const [videoExistsRow] = await db.execute(videoExistsQuery, videoValues);
-    if (videoExistsRow.length === 0) {
-      throw new ApiError(400, "Video doesn't exists");
+    const videoExists = await Video.findById("videos", { id });
+    if (!videoExists) {
+      throw new ApiError(HttpStatusCodes.NOT_FOUND, "Video not found");
     }
 
-    const query = `DELETE FROM Videos WHERE id = ?`;
-    const values = [id];
-    const [rows] = await db.execute(query, values);
-    if (rows.length === 0) {
-      throw new ApiError(400, "Video not deleted");
+    const deleteVideo = await Video.remove("videos", { id });
+    if (!deleteVideo) {
+      throw new ApiError(HttpStatusCodes.NOT_MODIFIED, "Video not deleted");
     }
     return res
       .status(HttpStatusCodes.OK)
       .json(
-        new ApiResponse(HttpStatusCodes.OK, rows, "Video deleted Successfully")
+        new ApiResponse(
+          HttpStatusCodes.OK,
+          deleteVideo,
+          "Video deleted Successfully"
+        )
       );
   });
 
