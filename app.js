@@ -28,11 +28,11 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
 // routes
-import usersRouter from "./src/routes/users.route.js";
-import videoRouter from "./src/routes/videos.route.js";
+import usersRouter from "./src/routes/v1/users.route.js";
+// import videoRouter from "./src/routes/v1/videos.route.js";
 
 app.use("/api/v1/users", usersRouter);
-app.use("/api/v1/videos", videoRouter);
+// app.use("/api/v1/videos", videoRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

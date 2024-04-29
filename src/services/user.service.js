@@ -1,6 +1,6 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiError, ApiResponse } from "../utils/ApiHandler.utils.js";
-import AuthService from "../helper/auth.helper.js";
+import AuthService from "../middlewares/authService.middleware.js";
 class UserService {
   constructor(UserRepository) {
     this.UserRepository = UserRepository;
@@ -49,16 +49,19 @@ class UserService {
   }
 
   async loginUser(email, password) {
-    const user = await this.UserRepository.loginUser(email, password);
+    console.log("email: ", email, " Password: ", password);
+    const user = await this.UserRepository.checkUserExists(email);
+    console.log("Inside user service login user", user);
+    console.log(user.password);
     if (!user) {
       throw new ApiError(HttpStatusCodes.UNAUTHORIZED, "User not found");
     }
-
     const passwordMatch = await AuthService.isPasswordCorrect(
       password,
       user.password
     );
-    if (!passwordMatch) {
+    console.log(passwordMatch);
+    if (passwordMatch === "") {
       throw new ApiError(HttpStatusCodes.UNAUTHORIZED, "Password Incorrect");
     }
 

@@ -10,7 +10,7 @@ CREATE TABLE Users (
     lastname VARCHAR(255),
     avatar VARCHAR(255),
     coverImage VARCHAR(255),
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(5000) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX username_idx (username),

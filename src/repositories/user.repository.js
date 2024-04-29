@@ -16,9 +16,22 @@ class UserRepository {
     return await this.db.executeQuery(query, [id]);
   }
 
-  async checkUserExists(username, email) {
-    const query = `SELECT * FROM USERS WHERE username = ? OR email = ?`;
-    return (await this.db.executeQuery(query, [username, email]).length) > 0;
+  async checkUserExists(email) {
+    try {
+      console.log("checkUserExists fn", email);
+      const query = `SELECT * FROM users WHERE email = ?`;
+
+      const response = await this.db.executeQuery(query, [email]);
+      console.log("Inside user repo check User exists", response[0]);
+      // Ensure that response is an array and has at least one element
+      if (Array.isArray(response) && response.length > 0) {
+        return response[0];
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking user existence:", error);
+      return false; // Return false in case of any errors
+    }
   }
 
   async updateUser(params = {}, id) {
@@ -47,10 +60,10 @@ class UserRepository {
     return response;
   }
 
-  async loginUser(email) {
-    const query = `SELECT * FROM USERS WHERE email = ?`;
-    const response = await this.db.executeQuery(query, [email]);
-    return response[0];
+  async loginUser(email, password) {
+    const query = `SELECT * FROM USERS WHERE email = ? AND password = ?`;
+    const response = await this.db.executeQuery(query, [email, password]);
+    return response;
   }
 
   async registerUser({

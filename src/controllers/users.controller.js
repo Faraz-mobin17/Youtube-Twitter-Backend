@@ -1,8 +1,8 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import AuthService from "../helper/auth.helper.js";
-import { UserService } from "../service/user.service.js";
+import AuthService from "../middlewares/authService.middleware.js";
+import { UserService } from "../services/user.service.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import db from "../db/connection.db.js"; // Import your Database class instance
 
@@ -22,7 +22,8 @@ const getAllUsers = asyncHandler(async (_, res) => {
 const getUser = asyncHandler(async (req, res) => {
   const userId = Number(req.params.id) || 1;
   const user = await User.getUser(userId);
-  if (!user) {
+  console.log("user controller getUser fn", user);
+  if (user.length === 0) {
     throw new ApiError(400, "user not found");
   }
   return res
@@ -56,7 +57,8 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const response = await User.loginUser(req.email, req.password);
+  const response = await User.loginUser(req.body.email, req.body.password);
+  console.log("Inside user controller login user:", response);
   const options = {
     expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     httpOnly: true,
@@ -79,7 +81,11 @@ const logoutUser = asyncHandler(async (_, res) => {
     .json({ msg: "User logged out" });
 });
 const registerUser = asyncHandler(async (req, res) => {
-  console.log("Inside registerUser controller", req.username, req.email);
+  console.log(
+    "Inside registerUser controller",
+    req.body.username,
+    req.body.email
+  );
   const response = await User.registerUser(req.body);
   return res
     .status(HttpStatusCodes.CREATED)
