@@ -74,19 +74,19 @@ class UserService {
   }
 
   async getAllUsers() {
-    return this.UserRepository.getAllUsers();
+    return await this.UserRepository.getAllUsers();
   }
 
   async getUser(id) {
-    return this.UserRepository.getUser(id);
+    return await this.UserRepository.getUser(id);
   }
 
   async updateUser(params, id) {
-    return this.UserRepository.updateUser(params, id);
+    return await this.UserRepository.updateUser(params, id);
   }
 
   async deleteUser(id) {
-    return this.UserRepository.deleteUser(id);
+    return await this.UserRepository.deleteUser(id);
   }
 }
 
