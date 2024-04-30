@@ -1,0 +1,88 @@
+import { TweetRepository } from "../repositories/tweet.repository.js";
+import { TweetService } from "../services/tweet.service.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
+
+const Tweet = new TweetService(new TweetRepository(db));
+
+const createTweet = asyncHandler(async (req, res) => {
+  //TODO: create tweet
+  if (!req.body) {
+    throw new ApiError(HttpStatusCodes.BAD_REQUEST, "tweet required");
+  }
+  const tweets = await Tweet.createTweet(req.body);
+  if (!tweets) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "tweet not found");
+  }
+  return res
+    .status(HttpStatusCodes.CREATED)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.CREATED,
+        tweets,
+        "Tweets Created Successfully"
+      )
+    );
+});
+
+const getUserTweets = asyncHandler(async (req, res) => {
+  // TODO: get user tweets
+  const { id } = Number(req.params);
+  if (!id) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "User id not found");
+  }
+  const tweet = await Tweet.getUserTweets(id);
+  if (!tweet || tweet.length === 0) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "User tweet not found");
+  }
+  return res
+    .status(HttpStatusCodes.OK)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.OK,
+        tweet,
+        "User tweet fetched Successfully"
+      )
+    );
+});
+
+const updateTweet = asyncHandler(async (req, res) => {
+  //TODO: update tweet
+  if (!req.body) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "Content required");
+  }
+  const tweet = await Tweet.updateTweet(req.body.content, req.params.id);
+  if (!tweet || tweet.length === 0) {
+    throw new ApiError(HttpStatusCodes.NOT_MODIFIED, "Tweet not updated");
+  }
+  return res
+    .status(HttpStatusCodes.OK)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.OK,
+        tweet,
+        "Tweet content updated successfully"
+      )
+    );
+});
+
+const deleteTweet = asyncHandler(async (req, res) => {
+  //TODO: delete tweet
+  const { id } = Number(req.params);
+  if (!id) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "User id not found");
+  }
+  const tweet = await Tweet.deleteTweet(id);
+  if (!tweet || tweet.length === 0) {
+    throw new ApiError(HttpStatusCodes.NOT_MODIFIED, "Tweet not deleted");
+  }
+  return res
+    .status(HttpStatusCodes.OK)
+    .json(
+      new ApiResponse(HttpStatusCodes.OK, tweet, "Tweet deleted Successfully")
+    );
+});
+
+export { createTweet, getUserTweets, updateTweet, deleteTweet };
