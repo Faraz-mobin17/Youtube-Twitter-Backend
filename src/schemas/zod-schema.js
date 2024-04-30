@@ -70,10 +70,17 @@ const tweetSchema = z.object({
     .max(1000, { message: "Tweet content cannot be greater than 1000 words" }),
 });
 
+const commentSchema = z.object({
+  content: z
+    .string()
+    .max(1000, { message: "Comment should be less than 1000 words" }),
+});
+
 export {
   signinSchema,
   signupSchema,
   updateUserParamsSchema,
   updateUserBodySchema,
   tweetSchema,
+  commentSchema,
 };

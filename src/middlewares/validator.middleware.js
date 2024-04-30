@@ -4,6 +4,7 @@ import {
   updateUserBodySchema,
   updateUserParamsSchema,
   tweetSchema,
+  commentSchema,
 } from "../schemas/zod-schema.js";
 
 const validateSignup = (req, res, next) => {
@@ -44,4 +45,18 @@ const validateTweet = (req, res, next) => {
   next();
 };
 
-export { validateSignup, validateSignin, validateUpdateQuery, validateTweet };
+const validateComment = (req, res, next) => {
+  const { error } = commentSchema.safeParse(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+  next();
+};
+
+export {
+  validateSignup,
+  validateSignin,
+  validateUpdateQuery,
+  validateTweet,
+  validateComment,
+};

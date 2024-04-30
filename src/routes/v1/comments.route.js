@@ -6,17 +6,17 @@ import {
   getVideoComments,
   updateComment,
 } from "../../controllers/comments.controller.js";
-
+import { validateComment } from "../../middlewares/validator.middleware.js";
 const router = express.Router();
 
 // create comment
-router.post("/add-comment", addComment);
+router.post("/add-comment", validateComment, addComment);
 
 // Routes for specific user by ID
 router
   .route("/:id")
   .get(verifyJWT, getVideoComments)
-  .patch(verifyJWT, updateComment)
+  .patch(verifyJWT, validateComment, updateComment)
   .delete(verifyJWT, deleteComment);
 
 export default router;
