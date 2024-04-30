@@ -30,9 +30,12 @@ app.use(cookieParser());
 // routes
 import usersRouter from "./src/routes/v1/users.route.js";
 // import videoRouter from "./src/routes/v1/videos.route.js";
+import TweetRouter from "./src/routes/v1/tweets.route.js";
 
 app.use("/api/v1/users", usersRouter);
 // app.use("/api/v1/videos", videoRouter);
+
+app.use("/api/v1/tweet", TweetRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
