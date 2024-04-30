@@ -46,7 +46,7 @@ const signinSchema = z.object({
   password: z
     .string({ required_error: "Password is required" })
     .min(3, { message: "Password must be at least of 7 characters" })
-    .max(1024, "Password can't be greater than 1024 characters"),
+    .max(1024, { message: "Password can't be greater than 1024 characters" }),
 });
 
 const updateUserParamsSchema = z.object({
@@ -64,9 +64,16 @@ const updateUserBodySchema = z.object({
   // You can add more fields as needed
 });
 
+const tweetSchema = z.object({
+  content: z
+    .string()
+    .max(1000, { message: "Tweet content cannot be greater than 1000 words" }),
+});
+
 export {
   signinSchema,
   signupSchema,
   updateUserParamsSchema,
   updateUserBodySchema,
+  tweetSchema,
 };
