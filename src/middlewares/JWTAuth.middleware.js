@@ -8,7 +8,7 @@ const userservice = new UserService(new UserRepository(db));
 const verifyJWT = async (req, res, next) => {
   try {
     // console.log("User cookies from auth file: ", req.cookies);
-    let token =
+    const token =
       req.cookies.token ||
       (req.headers.authorization &&
         req.headers.authorization.replace("Bearer ", ""));

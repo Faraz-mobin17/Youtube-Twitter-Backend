@@ -1,5 +1,5 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-import { ApiError, ApiResponse } from "../utils/ApiHandler.utils.js";
+import { ApiError } from "../utils/ApiHandler.utils.js";
 import AuthService from "../middlewares/authService.middleware.js";
 class UserService {
   constructor(UserRepository) {

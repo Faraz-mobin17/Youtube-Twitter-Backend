@@ -124,7 +124,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "Password doesnt mathc");
   }
 
-  let hashPassword = AuthService.getHashPassword(newPassword);
+  const hashPassword = AuthService.getHashPassword(newPassword);
   user.password = hashPassword;
 
   const updateUser = await User.update(
@@ -144,13 +144,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     );
 });
 
-const updateAvatar = asyncHandler(async (req, res) => {
-  // update avatar of the user
-});
+// const updateAvatar = asyncHandler(async (req, res) => {
+//   // update avatar of the user
+// });
 
-const updateCoverImage = asyncHandler(async (req, res) => {
-  // update coverimage of the user
-});
+// const updateCoverImage = asyncHandler(async (req, res) => {
+//   // update coverimage of the user
+// });
 
 export {
   getAllUsers,

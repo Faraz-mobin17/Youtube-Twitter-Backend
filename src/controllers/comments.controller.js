@@ -30,10 +30,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new ApiError(
-      HttpStatusCodes.INTERNAL_SERVER_ERROR,
-      "Failed to fetch comments"
-    );
+    throw new ApiError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 });
 

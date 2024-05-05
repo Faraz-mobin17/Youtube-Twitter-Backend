@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "nodemon -r dotenv/config src/bin/www"
+    "start": "nodemon -r dotenv/config src/bin/www",
+    "lint": "npx eslint --fix ./src *.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -24,6 +25,11 @@
     "zod": "^3.23.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@eslint/js": "^9.1.1",
+    "eslint": "^9.1.1",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.1.0",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5"
   }
 }

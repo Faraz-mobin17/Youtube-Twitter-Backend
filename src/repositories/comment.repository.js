@@ -59,3 +59,4 @@ class CommentRepository {
     }
   }
 }
+export { CommentRepository };

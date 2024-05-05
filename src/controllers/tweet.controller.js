@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-
+import db from "../db/connection.db.js";
 const Tweet = new TweetService(new TweetRepository(db));
 
 const createTweet = asyncHandler(async (req, res) => {
