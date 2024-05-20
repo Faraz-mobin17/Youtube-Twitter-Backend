@@ -5,6 +5,16 @@ import AuthService from "../middlewares/authService.middleware.js";
 import { UserService } from "../services/user.service.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import db from "../db/connection.db.js"; // Import your Database class instance
+import {
+  checkIdempotencyKey,
+  idempotencyStore,
+  storeIdempotencyKey,
+} from "../utils/idempotencyKey.js";
+
+import {
+  checkIdempotencyKey,
+  storeIdempotencyKey,
+} from "#utils/idempotencyKey";
 
 // Modify the instantiation of UserService to use the Database instanc
 const User = new UserService(new UserRepository(db));
@@ -86,16 +96,43 @@ const registerUser = asyncHandler(async (req, res) => {
     req.body.username,
     req.body.email
   );
-  const response = await User.registerUser(req.body);
-  return res
-    .status(HttpStatusCodes.CREATED)
-    .json(
-      new ApiResponse(
-        HttpStatusCodes.CREATED,
-        response,
-        "User registered successfully"
-      )
-    );
+  const idempotencyKey = req.headers["idempotency-key"];
+  if (!idempotencyKey) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json(
+        new ApiResponse(
+          HttpStatusCodes.BAD_REQUEST,
+          null,
+          "idempotency Key is required"
+        )
+      );
+  }
+  const existingResponse = await checkIdempotencyKey(idempotencyKey);
+  if (existingResponse) {
+    return res.status(HttpStatusCodes.OK).json(existingResponse);
+  }
+  try {
+    const response = await User.registerUser(req.body);
+    await storeIdempotencyKey(idempotencyKey, response);
+    return res
+      .status(HttpStatusCodes.CREATED)
+      .json(
+        new ApiResponse(
+          HttpStatusCodes.CREATED,
+          response,
+          "User registered successfully"
+        )
+      );
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.statusCode === HttpStatusCodes.CONFLICT
+    ) {
+      await storeIdempotencyKey(idempotencyKey, null, error.message);
+    }
+    throw error;
+  }
 });
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   // not updated

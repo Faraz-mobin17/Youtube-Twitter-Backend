@@ -137,3 +137,15 @@ class UserRepository {
 }
 
 export default UserRepository;
+
+
+  // "imports": {
+  //   "#controllers": "./src/controllers",
+  //   "#db": "./src/db",
+  //   "#middlewares": "./src/middlewares",
+  //   "#repositories": "./src/repositories",
+  //   "#routes": "./src/routes",
+  //   "#schemas": "./src/schemas",
+  //   "#services": "./src/services",
+  //   "#utils": "./src/utils"
+  // },

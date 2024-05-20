@@ -1,22 +1,19 @@
 import express from "express";
-import { verifyJWT } from "../../middlewares/JWTAuth.middleware.js";
-import {
-  addComment,
-  deleteComment,
-  getVideoComments,
-  updateComment,
-} from "../../controllers/comments.controller.js";
-import { validateComment } from "../../middlewares/validator.middleware.js";
+import { Auth, validator } from "../middlewares/index.js";
+import { commentController } from "../controllers/index.js";
+
 const router = express.Router();
 
-// create comment
-router.post("/add-comment", validateComment, addComment);
+router.post("/", [validator.validateComment, commentController.addComment]);
 
-// Routes for specific user by ID
 router
   .route("/:id")
-  .get(verifyJWT, getVideoComments)
-  .patch(verifyJWT, validateComment, updateComment)
-  .delete(verifyJWT, deleteComment);
+  .get([Auth.verifyJWT, commentController.getVideoComments])
+  .patch([
+    Auth.verifyJWT,
+    validator.validateComment,
+    commentController.updateComment,
+  ])
+  .delete([Auth.verifyJWT, commentController.deleteComment]);
 
 export default router;

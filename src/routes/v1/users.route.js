@@ -1,41 +1,42 @@
 import express from "express";
-import { verifyJWT } from "../../middlewares/JWTAuth.middleware.js";
+
+import { Auth, validator } from "../middlewares/index.js";
+import { userController } from "../controllers/index.js";
+
 import {
-  getAllUsers,
-  registerUser,
-  loginUser,
-  logoutUser,
-  getUser,
-  updateUser,
-  deleteUser,
-} from "../../controllers/users.controller.js";
-import {
-  // userRegisterValidator,
-  // userLoginValidator,
-  validateSignin,
-  validateSignup,
-  validateUpdateQuery,
-} from "../../middlewares/validator.middleware.js";
+  createAccountLimiter,
+  generalLimiter,
+} from "../utils/rate.limiting.js";
 
 const router = express.Router();
 
+router.use(generalLimiter);
+
 // GET all users
-router.get("/", getAllUsers);
+router.get("/", userController.getAllUsers);
 
 // Register user
-router.post("/register", validateSignup, registerUser);
+router.post("/register", [
+  createAccountLimiter,
+  validator.validateSignup,
+  userController.registerUser,
+]);
 
 // Login user
-router.post("/login", validateSignin, loginUser);
+router.post("/login", [validator.validateSignin, userController.loginUser]);
 
 // Logout user
-router.post("/logout", verifyJWT, logoutUser);
+router.post("/logout", [Auth.verifyJWT, userController.logoutUser]);
 
 // Routes for specific user by ID
 router
   .route("/:id")
-  .get(verifyJWT, getUser)
-  .patch(verifyJWT, validateUpdateQuery, updateUser)
-  .delete(verifyJWT, deleteUser);
+  .get([Auth.verifyJWT, userController.getUser])
+  .patch([
+    Auth.verifyJWT,
+    validator.validateUpdateQuery,
+    userController.updateUser,
+  ])
+  .delete([Auth.verifyJWT, userController.deleteUser]);
 
 export default router;

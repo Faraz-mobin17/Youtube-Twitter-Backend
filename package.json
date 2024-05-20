@@ -3,8 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "src/index.js",
+  "imports": {
+    "#controllers/*": "./src/controllers/*.js",
+    "#db/*": "./src/db/*.js",
+    "#middlewares/*": "./src/middlewares/*.js",
+    "#repositories/*": "./src/repositories/*.js",
+    "#routes/*": "./src/routes/*.js",
+    "#schemas/*": "./src/schemas/*.js",
+    "#services/*": "./src/services/*.js",
+    "#utils/*": "./src/utils/*.js"
+  },
   "scripts": {
-    "start": "nodemon -r dotenv/config src/bin/www",
+    "start": "node src/index.js",
+    "dev": "nodemon -r dotenv/config src/bin/www",
     "lint": "npx eslint --fix ./src *.js"
   },
   "dependencies": {
@@ -15,6 +27,7 @@
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
+    "express-rate-limit": "^7.2.0",
     "http-errors": "~1.6.3",
     "http-status-codes": "^2.3.0",
     "jade": "~1.11.0",

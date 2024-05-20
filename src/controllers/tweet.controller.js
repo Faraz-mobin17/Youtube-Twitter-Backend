@@ -1,8 +1,7 @@
 import { TweetRepository } from "../repositories/tweet.repository.js";
 import { TweetService } from "../services/tweet.service.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
+import { asyncHandler } from "../utils/asyncHandler.utils.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import db from "../db/connection.db.js";
 const Tweet = new TweetService(new TweetRepository(db));

@@ -6,7 +6,7 @@ import logger from "morgan";
 import cors from "cors";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ORIGIN } from "./index.js";
+import { ORIGIN } from "../index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -20,6 +20,8 @@ app.use(
 app.set("views", path.join(__dirname, "src/views"));
 app.set("view engine", "jade");
 
+// middlewares
+
 app.use(logger("dev"));
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
@@ -28,15 +30,26 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
 // routes
-import usersRouter from "./src/routes/v1/users.route.js";
-// import videoRouter from "./src/routes/v1/videos.route.js";
-import TweetRouter from "./src/routes/v1/tweets.route.js";
-import CommentRouter from "./src/routes/v1/comments.route.js";
-app.use("/api/v1/users", usersRouter);
-// app.use("/api/v1/videos", videoRouter);
 
-app.use("/api/v1/tweet", TweetRouter);
-app.use("/api/v1/comment", CommentRouter);
+// import {
+//   commentRouter,
+//   tweetRouter,
+//   userRouter,
+//   videoRouter,
+// } from "./src/routes/v1/index.js";
+
+import {
+  commentRouter,
+  tweetRouter,
+  userRouter,
+  videoRouter,
+} from "#routes/v1/index";
+
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/videos", videoRouter);
+app.use("/api/v1/tweets", tweetRouter);
+app.use("/api/v1/comments", commentRouter);
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

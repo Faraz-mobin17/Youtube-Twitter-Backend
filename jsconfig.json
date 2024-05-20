@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "#controllers/*": ["./src/controllers/*.js"],
+      "#db/*": ["./db/*.js"],
+      "#middlewares/*": ["./src/middlewares/*.js"],
+      "#repositories/*": ["./src/repositories/*.js"],
+      "#routes/*": ["./src/routes/*.js"],
+      "#schemas/*": ["./src/schemas/*.js"],
+      "#services/*": ["./src/services/*.js"],
+      "#utils/*": ["./src/utils/*.js"]
+    }
+  },
+  "include": ["./src/**/*.js"],
+  "exclude": ["node_modules"]
+}

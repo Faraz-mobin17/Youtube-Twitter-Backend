@@ -1,23 +1,17 @@
 import express from "express";
-import { verifyJWT } from "../../middlewares/JWTAuth.middleware.js";
-import {
-  createTweet,
-  deleteTweet,
-  getUserTweets,
-  updateTweet,
-} from "../../controllers/tweet.controller.js";
-import { validateTweet } from "../../middlewares/validator.middleware.js";
+import { tweetControler } from "../controllers/index.js";
+import { validator, Auth } from "../middlewares/index.js";
 
 const router = express.Router();
 
 // create tweet
-router.post("/create-tweet", validateTweet, createTweet);
+router.post("/", validator.validateTweet, tweetControler.createTweet);
 
 // Routes for specific user by ID
 router
   .route("/:id")
-  .get(verifyJWT, getUserTweets)
-  .patch(verifyJWT, validateTweet, updateTweet)
-  .delete(verifyJWT, deleteTweet);
+  .get([Auth.verifyJWT, tweetControler.getUserTweets])
+  .patch([Auth.verifyJWT, validator.validateTweet, tweetControler.updateTweet])
+  .delete([Auth.verifyJWT, tweetControler.deleteTweet]);
 
 export default router;
