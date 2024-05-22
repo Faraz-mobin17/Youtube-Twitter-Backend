@@ -18,5 +18,5 @@
 - [] Filtering
 - [] Secure Access
 - [] Resource cross references
-- [] Add an item to a cart
 - [✅] Rate Limit
+- [✅] Caching

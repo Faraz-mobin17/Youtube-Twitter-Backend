@@ -4,22 +4,13 @@
   "private": true,
   "type": "module",
   "main": "src/index.js",
-  "imports": {
-    "#controllers/*": "./src/controllers/*.js",
-    "#db/*": "./src/db/*.js",
-    "#middlewares/*": "./src/middlewares/*.js",
-    "#repositories/*": "./src/repositories/*.js",
-    "#routes/*": "./src/routes/*.js",
-    "#schemas/*": "./src/schemas/*.js",
-    "#services/*": "./src/services/*.js",
-    "#utils/*": "./src/utils/*.js"
-  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config src/bin/www",
     "lint": "npx eslint --fix ./src *.js"
   },
   "dependencies": {
+    "apicache": "^1.6.3",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.1.0",
     "cookie-parser": "~1.4.4",

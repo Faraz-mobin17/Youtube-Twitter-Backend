@@ -31,19 +31,12 @@ app.use(cookieParser());
 
 // routes
 
-// import {
-//   commentRouter,
-//   tweetRouter,
-//   userRouter,
-//   videoRouter,
-// } from "./src/routes/v1/index.js";
-
 import {
   commentRouter,
   tweetRouter,
   userRouter,
   videoRouter,
-} from "#routes/v1/index";
+} from "./routes/v1/index.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);
