@@ -1,42 +1,67 @@
 import express from "express";
 
-import { Auth, validator } from "../middlewares/index.js";
-import { userController } from "../controllers/index.js";
-
+import { Auth, validator } from "../../middlewares/index.js";
+import { userController } from "../../controllers/index.js";
+import { multer } from "../../middlewares/index.js";
 import {
   createAccountLimiter,
   generalLimiter,
-} from "../utils/rate.limiting.js";
+} from "../../utils/rate.limiting.js";
 
 const router = express.Router();
 
 router.use(generalLimiter);
 
-// GET all users
-router.get("/", userController.getAllUsers);
+// TODO: get requests
 
-// Register user
-router.post("/register", [
-  createAccountLimiter,
-  validator.validateSignup,
-  userController.registerUser,
-]);
-
-// Login user
-router.post("/login", [validator.validateSignin, userController.loginUser]);
-
-// Logout user
-router.post("/logout", [Auth.verifyJWT, userController.logoutUser]);
-
-// Routes for specific user by ID
+router.route("/current-user").get(Auth.verifyJWT, userController.getUser);
 router
-  .route("/:id")
-  .get([Auth.verifyJWT, userController.getUser])
-  .patch([
-    Auth.verifyJWT,
+  .route("/channel/:username")
+  .get(Auth.verifyJWT, userController.getUserChannelProfile);
+router.route("/history").get(Auth.verifyJWT, userController.getWatchHistory);
+
+//TODO:  post requrest
+
+router.route("/register").post(
+  multer.upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  createAccountLimiter,
+  // validator.validateSignup,
+  userController.registerUser
+);
+router.route("/login").post(validator.validateSignin, userController.loginUser);
+router.route("/logout").post(Auth.verifyJWT, userController.logoutUser);
+
+// TODO: patch requests
+
+router
+  .route("/update-account")
+  .patch(
     validator.validateUpdateQuery,
-    userController.updateUser,
-  ])
-  .delete([Auth.verifyJWT, userController.deleteUser]);
+    Auth.verifyJWT,
+    userController.updateUser
+  );
+router
+  .route("/change-current-password")
+  .patch(Auth.verifyJWT, userController.changeCurrentPassword);
+
+router.route("/avatar").patch(Auth.verifyJWT, userController.updateAvatar);
+router
+  .route("/cover-image")
+  .patch(Auth.verifyJWT, userController.updateCoverImage);
+
+//TODO: delete request
+
+router
+  .route("/delete-account")
+  .delete(Auth.verifyJWT, userController.deleteUser);
 
 export default router;
