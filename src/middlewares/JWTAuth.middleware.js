@@ -13,9 +13,7 @@ const verifyJWT = async (req, res, next) => {
         req.headers.authorization.replace("Bearer ", ""));
 
     if (!token) {
-      return res
-        .status(HttpStatusCodes.UNAUTHORIZED)
-        .json({ success: false, msg: "User not logged in" });
+      throw new ApiError(401, "Unauthorized request");
     }
     const decodedToken = await AuthService.verifyJwtToken(token);
 

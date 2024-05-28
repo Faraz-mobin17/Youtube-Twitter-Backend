@@ -1,6 +1,7 @@
-import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiError } from "../utils/ApiHandler.utils.js";
+import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import AuthService from "../middlewares/authService.middleware.js";
+
 class UserService {
   constructor(UserRepository) {
     this.UserRepository = UserRepository;
@@ -15,53 +16,63 @@ class UserService {
     coverImage,
     password,
   }) {
-    const userExists = await this.UserRepository.checkUserExists(
-      username,
-      email
-    );
-    if (userExists) {
-      throw new ApiError(
-        HttpStatusCodes.CONFLICT,
-        "User with email or username already exists"
+    try {
+      const userExists = await this.UserRepository.checkRegisteringUserExists(
+        username,
+        email
       );
-    }
 
-    const hashPassword = await AuthService.getHashPassword(password);
+      if (userExists) {
+        throw new ApiError(HttpStatusCodes.UNAUTHORIZED, "User already exists");
+      }
 
-    const user = await this.UserRepository.registerUser({
-      username,
-      email,
-      firstname,
-      lastname,
-      avatar,
-      coverImage,
-      password: hashPassword,
-    });
-
-    if (!user) {
-      throw new ApiError(
-        HttpStatusCodes.INTERNAL_SERVER_ERROR,
-        "User not created"
+      const hashPassword = await AuthService.getHashPassword(password);
+      console.log(
+        "Inside registerUser method in user service:",
+        username,
+        email,
+        firstname,
+        lastname,
+        avatar,
+        coverImage,
+        password
       );
-    }
+      const user = await this.UserRepository.registerUser({
+        username,
+        email,
+        firstname,
+        lastname,
+        avatar,
+        coverImage,
+        password: hashPassword,
+      });
 
-    return user;
+      if (!user || user.length === 0) {
+        throw new ApiError(
+          HttpStatusCodes.INTERNAL_SERVER_ERROR,
+          "Failed to create user. Please try again later."
+        );
+      }
+
+      return user;
+    } catch (error) {
+      throw error; // Re-throw the error for the caller to handle
+    }
   }
 
   async loginUser(email, password) {
-    console.log("email: ", email, " Password: ", password);
-    const user = await this.UserRepository.checkUserExists(email);
-    console.log("Inside user service login user", user);
-    console.log(user.password);
-    if (!user) {
+    const user = await this.UserRepository.checkLoginUserExists(email);
+
+    if (user.length === 0) {
       throw new ApiError(HttpStatusCodes.UNAUTHORIZED, "User not found");
     }
+
     const passwordMatch = await AuthService.isPasswordCorrect(
       password,
       user.password
     );
-    console.log(passwordMatch);
-    if (passwordMatch === "") {
+
+    if (!passwordMatch) {
       throw new ApiError(HttpStatusCodes.UNAUTHORIZED, "Password Incorrect");
     }
 
@@ -87,6 +98,51 @@ class UserService {
 
   async deleteUser(id) {
     return await this.UserRepository.deleteUser(id);
+  }
+
+  async changeCurrentPassword(id, oldPassword, newPassword) {
+    const user = await this.getUser(id);
+    console.log(user);
+    const passwordMatch = await AuthService.isPasswordCorrect(
+      oldPassword,
+      user.password
+    );
+
+    if (!passwordMatch) {
+      throw new ApiError(400, "Password doesn't match");
+    }
+
+    // if password matched then hash the new password generate the token and return
+
+    const hashPassword = await AuthService.getHashPassword(newPassword);
+
+    const currentUser = await this.UserRepository.changeCurrentPassword(id, {
+      password: hashPassword,
+    });
+
+    if (!currentUser || currentUser.length === 0) {
+      throw new ApiError(
+        HttpStatusCodes.INTERNAL_SERVER_ERROR,
+        "Failed to create user. Please try again later."
+      );
+    }
+
+    return currentUser;
+  }
+
+  async getUserChannelProfile(username) {
+    return await this.UserRepository.getUserChannelProfile(username);
+  }
+
+  async getWatchHistory(username) {
+    return await this.UserRepository.getWatchHistory(username);
+  }
+
+  async updateAvatar(id, avatar) {
+    return await this.UserRepository.updateAvatar(id, avatar);
+  }
+  async updateCoverImage(id, coverImage) {
+    return await this.UserRepository.updateCoverImage(id, coverImage);
   }
 }
 
