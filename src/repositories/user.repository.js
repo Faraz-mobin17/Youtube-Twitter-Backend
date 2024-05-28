@@ -1,6 +1,3 @@
-import { ApiError } from "../utils/ApiHandler.utils.js";
-import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
-
 class UserRepository {
   constructor(db) {
     this.db = db;
@@ -13,25 +10,9 @@ class UserRepository {
 
   async getUser(id) {
     const query = `SELECT * FROM USERS WHERE id = ?`;
-    return await this.db.executeQuery(query, [id]);
-  }
-
-  async checkUserExists(email) {
-    try {
-      console.log("checkUserExists fn", email);
-      const query = `SELECT * FROM users WHERE email = ?`;
-
-      const response = await this.db.executeQuery(query, [email]);
-      console.log("Inside user repo check User exists", response[0]);
-      // Ensure that response is an array and has at least one element
-      if (Array.isArray(response) && response.length > 0) {
-        return response[0];
-      }
-      return false;
-    } catch (error) {
-      console.error("Error checking user existence:", error);
-      return false; // Return false in case of any errors
-    }
+    const response = await this.db.executeQuery(query, [id]);
+    console.log("inside getuser user repo", response[0]);
+    return response[0];
   }
 
   async updateUser(params = {}, id) {
@@ -66,6 +47,29 @@ class UserRepository {
     return response;
   }
 
+  async checkRegisteringUserExists(username, email) {
+    try {
+      const query = `SELECT * FROM users WHERE username = ? OR email = ?`;
+
+      const response = await this.db.executeQuery(query, [username, email]);
+
+      return response.length > 0;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+  async checkLoginUserExists(email) {
+    try {
+      console.log("Inside checkLoginUser method in user repo", email);
+      const query = `SELECT * FROM USERS where email = ?`;
+      const response = await this.db.executeQuery(query, [email]);
+      console.log(response);
+      return response[0];
+    } catch (error) {
+      throw error;
+    }
+  }
   async registerUser({
     username,
     email,
@@ -75,12 +79,6 @@ class UserRepository {
     coverImage,
     password,
   }) {
-    const userExists = await this.checkUserExists(username, email);
-
-    if (userExists) {
-      throw new ApiError(HttpStatusCodes.CONFLICT, "User already exists");
-    }
-
     const query = `INSERT INTO USERS (username, email, firstname, lastname, avatar, coverImage, password) VALUES (?, ?, ?, ?, ?, ?, ?)`;
     return await this.db.executeQuery(query, [
       username,
@@ -91,6 +89,88 @@ class UserRepository {
       coverImage,
       password,
     ]);
+  }
+  async changeCurrentPassword(id, { password }) {
+    try {
+      const query = `UPDATE USERS SET password = ? WHERE id = ?`;
+      return await this.db.executeQuery(query, [password, id]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserChannelProfile(username) {
+    try {
+      const query = `
+      SELECT 
+      u.firstname, 
+      u.lastname, 
+      u.avatar, 
+      u.coverImage, 
+      u.email, 
+      s.channel_id as subscriber, 
+      s.subscriber_id as subscribedTo, 
+      COUNT(s.channel_id) as subscriberCount
+  FROM USERS u
+  JOIN subscriptions s ON u.id = s.subscriber_id
+  WHERE u.username = ?
+  GROUP BY 
+      u.id, 
+      u.firstname, 
+      u.lastname, 
+      u.avatar, 
+      u.coverImage, 
+      u.email, 
+      s.channel_id, 
+      s.subscriber_id;
+       `;
+      return await this.db.executeQuery(query, [username]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getWatchHistory(username) {
+    try {
+      const query = `SELECT 
+      vh.watched_at,
+      v.videoFile,
+      v.thumbnail,
+      v.title,
+      v.description,
+      v.duration,
+      v.views,
+      u.username
+  FROM 
+      WatchHistory vh
+  JOIN 
+      videos v ON vh.video_id = v.id
+  JOIN 
+      users u ON vh.user_id = u.id
+  WHERE 
+      u.username = ?
+  ORDER BY 
+      vh.watched_at DESC; `;
+      return await this.db.executeQuery(query, [username]);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateAvatar(id, avatar) {
+    try {
+      const query = `UPDATE USERS SET avatar = ? WHERE id = ?`;
+      return await this.db.executeQuery(query, [avatar, id]);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateCoverImage(id, coverImage) {
+    try {
+      const query = `UPDATE USERS SET coverImage = ? WHERE id = ?`;
+      return await this.db.executeQuery(query, [coverImage, id]);
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

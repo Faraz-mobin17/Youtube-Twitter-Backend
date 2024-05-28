@@ -6,6 +6,19 @@
 | -------------- | --------------------------------------------------------- |
 | MySQL CRUD APP | https://documenter.getpostman.com/view/9805137/2sA35D42ne |
 
+## User Controller Methods
+
+- [✅] Get all Users
+- [✅] Get User
+- [✅] Update User
+- [✅] Delete User
+- [✅] Login User
+- [✅] Logout User
+- [✅] Register User
+- [✅] Change Current User Password
+- [✅] Update Avatar
+- [✅] Update CoverImage
+
 ## Best API Practices used
 
 - [✅] Use resource name (nouns)

@@ -1,5 +1,5 @@
-import { ApiResponse } from "../utils/ApiHandler.utils";
-import { HttpStatusCodes } from "../utils/httpStatusCodes.utils";
+import { ApiResponse } from "../utils/ApiHandler.utils.js";
+import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 
 const verifyPremiumUser = (req, res, next) => {
   if (req.user && req.user.is_premium) {

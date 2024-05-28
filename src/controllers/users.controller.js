@@ -1,27 +1,16 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import AuthService from "../middlewares/authService.middleware.js";
 import { UserService } from "../services/user.service.js";
 import { UserRepository } from "../repositories/user.repository.js";
-import db from "../db/connection.db.js"; // Import your Database class instance
-import {
-  checkIdempotencyKey,
-  idempotencyStore,
-  storeIdempotencyKey,
-} from "../utils/idempotencyKey.js";
+import db from "../db/connection.db.js";
+import { uploadOnCloudinary } from "../middlewares/index.js";
 
-import {
-  checkIdempotencyKey,
-  storeIdempotencyKey,
-} from "#utils/idempotencyKey";
-
-// Modify the instantiation of UserService to use the Database instanc
 const User = new UserService(new UserRepository(db));
 
 const getAllUsers = asyncHandler(async (_, res) => {
   const user = await User.getAllUsers();
-  if (!user) {
+  if (!user || user.length === 0) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "User not found");
   }
   return res
@@ -30,7 +19,7 @@ const getAllUsers = asyncHandler(async (_, res) => {
 });
 
 const getUser = asyncHandler(async (req, res) => {
-  const userId = Number(req.params.id) || 1;
+  const userId = req.user?.id;
   const user = await User.getUser(userId);
   console.log("user controller getUser fn", user);
   if (user.length === 0) {
@@ -42,11 +31,11 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-  const id = Number(req.params.id) || 1;
+  const id = req.user?.id;
 
   const result = await User.updateUser(req.body, id);
 
-  if (!result) {
+  if (!result || result.length === 0) {
     throw new ApiError(HttpStatusCodes.CONFLICT, "User not updated");
   }
 
@@ -56,7 +45,7 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 const deleteUser = asyncHandler(async (req, res) => {
-  const userId = Number(req.params.id);
+  const userId = req.user?.id;
   const user = await User.deleteUser(userId);
   if (!user) {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "User not delete");
@@ -68,7 +57,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const response = await User.loginUser(req.body.email, req.body.password);
-  console.log("Inside user controller login user:", response);
+
   const options = {
     expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     httpOnly: true,
@@ -90,104 +79,166 @@ const logoutUser = asyncHandler(async (_, res) => {
     .clearCookie("token", options)
     .json({ msg: "User logged out" });
 });
+
 const registerUser = asyncHandler(async (req, res) => {
-  console.log(
-    "Inside registerUser controller",
-    req.body.username,
-    req.body.email
-  );
-  const idempotencyKey = req.headers["idempotency-key"];
-  if (!idempotencyKey) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json(
-        new ApiResponse(
-          HttpStatusCodes.BAD_REQUEST,
-          null,
-          "idempotency Key is required"
-        )
-      );
+  const avatarLocalPath = req.files?.avatar[0]?.path;
+  //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
   }
-  const existingResponse = await checkIdempotencyKey(idempotencyKey);
-  if (existingResponse) {
-    return res.status(HttpStatusCodes.OK).json(existingResponse);
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
   }
-  try {
-    const response = await User.registerUser(req.body);
-    await storeIdempotencyKey(idempotencyKey, response);
-    return res
-      .status(HttpStatusCodes.CREATED)
-      .json(
-        new ApiResponse(
-          HttpStatusCodes.CREATED,
-          response,
-          "User registered successfully"
-        )
-      );
-  } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.statusCode === HttpStatusCodes.CONFLICT
-    ) {
-      await storeIdempotencyKey(idempotencyKey, null, error.message);
-    }
-    throw error;
+  console.log("inside user controller", avatarLocalPath, coverImageLocalPath);
+  const avatar = await uploadOnCloudinary.uploadOnCloudinary(avatarLocalPath);
+  const coverImage = coverImageLocalPath
+    ? await uploadOnCloudinary.uploadOnCloudinary(coverImageLocalPath)
+    : null;
+
+  if (!avatar) {
+    throw new ApiError(400, "Avatar file is required");
   }
+
+  const response = await User.registerUser({
+    ...req.body,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",
+  });
+
+  if (!response) {
+    throw new ApiError(400, "User not registered");
+  }
+
+  return res
+    .status(HttpStatusCodes.CREATED)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.CREATED,
+        response,
+        "User registered successfully"
+      )
+    );
 });
+
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-  // not updated
   const { oldPassword, newPassword } = req.body;
+  const id = req.user?.id;
+
+  console.log(oldPassword, newPassword);
 
   if (!(oldPassword && newPassword)) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json(
-        new ApiError(HttpStatusCodes.BAD_REQUEST, "all fields are required")
-      );
-  }
-  const userId = req.user?.id;
-
-  const user = await User.findById("users", { id: userId });
-  if (!user) {
-    throw new ApiError(HttpStatusCodes.BAD_REQUEST, "User doesnt exists");
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "Password doesn't exists");
   }
 
-  const isPasswordCorrect = AuthService.isPasswordCorrect(
-    oldPassword,
-    user.password
-  );
+  console.log("user id inside user controller", id);
 
-  if (!isPasswordCorrect) {
-    throw new ApiError(HttpStatusCodes.BAD_REQUEST, "Password doesnt mathc");
-  }
+  const user = await User.changeCurrentPassword(id, oldPassword, newPassword);
 
-  const hashPassword = AuthService.getHashPassword(newPassword);
-  user.password = hashPassword;
-
-  const updateUser = await User.update(
-    "users",
-    { password: user.password },
-    { id: userId }
-  );
-
-  if (!updateUser) {
-    throw new ApiError(400, "User not updated");
+  if (!user || user.length === 0) {
+    throw new ApiError(
+      HttpStatusCodes.NOT_MODIFIED,
+      "user password not updated"
+    );
   }
 
   return res
     .status(HttpStatusCodes.OK)
     .json(
-      new ApiResponse(HttpStatusCodes.OK, {}, "password changed Successfully")
+      new ApiResponse(
+        HttpStatusCodes.OK,
+        user,
+        "User Password Updated Successfully"
+      )
     );
 });
 
-// const updateAvatar = asyncHandler(async (req, res) => {
-//   // update avatar of the user
-// });
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
 
-// const updateCoverImage = asyncHandler(async (req, res) => {
-//   // update coverimage of the user
-// });
+  if (!username?.trim()) {
+    throw new ApiError(400, "username is missing");
+  }
+
+  const channel = await User.getUserChannelProfile(username);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "channel does not exists");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, channel[0], "User channel fetched successfully")
+    );
+});
+
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const username = req.user?.username;
+
+  if (!username) {
+    throw new ApiError(400, "user id is missing");
+  }
+
+  const history = await User.getWatchHistory(username);
+
+  if (!history?.length) {
+    throw new ApiError(404, "watch history not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, history, "Watch history fetched successfully"));
+});
+
+const updateAvatar = asyncHandler(async (req, res) => {
+  // update avatar of the user
+  const avatarLocalPath = req.file?.path;
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is missing");
+  }
+  const avatar = await uploadOnCloudinary.uploadOnCloudinary(avatarLocalPath);
+  if (!avatar.url) {
+    throw new ApiError(500, "Failed to upload avatar");
+  }
+  // update avatar of the user
+  const id = req.user?.id;
+  const updateAvatar = await User.updateAvatar(id, avatar.url);
+  if (!updateAvatar) {
+    throw new ApiError(500, "Failed to update avatar");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updateAvatar, "Avatar updated successfully"));
+});
+
+const updateCoverImage = asyncHandler(async (req, res) => {
+  // update coverimage of the user
+  const coverImageLocalPath = req.file?.path;
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "Cover image file is missing");
+  }
+  const coverImage =
+    await uploadOnCloudinary.uploadOnCloudinary(coverImageLocalPath);
+  if (!coverImage.url) {
+    throw new ApiError(500, "Failed to upload cover image");
+  }
+  const updateCoverImage = await User.updateCoverImage(id, coverImage.url);
+  if (!updateCoverImage) {
+    throw new ApiError(500, "Failed to update cover image");
+  }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updateCoverImage, "Cover image updated successfully")
+    );
+});
 
 export {
   getAllUsers,
@@ -198,4 +249,8 @@ export {
   loginUser,
   logoutUser,
   registerUser,
+  getUserChannelProfile,
+  getWatchHistory,
+  updateAvatar,
+  updateCoverImage,
 };
