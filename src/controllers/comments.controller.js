@@ -1,6 +1,5 @@
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError, ApiResponse } from "../utils/ApiHandler.utils.js";
+import { asyncHandler } from "../utils/asyncHandler.utils.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { CommentRepository } from "../repositories/comment.repository.js";
 import { CommentService } from "../services/comment.service.js";

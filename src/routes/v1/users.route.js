@@ -15,9 +15,7 @@ router.use(generalLimiter);
 // TODO: get requests
 
 router.route("/current-user").get(Auth.verifyJWT, userController.getUser);
-router
-  .route("/channel/:username")
-  .get(Auth.verifyJWT, userController.getUserChannelProfile);
+router.route("/channel/:username").get(userController.getUserChannelProfile);
 router.route("/history").get(Auth.verifyJWT, userController.getWatchHistory);
 
 //TODO:  post requrest
@@ -34,7 +32,7 @@ router.route("/register").post(
     },
   ]),
   createAccountLimiter,
-  // validator.validateSignup,
+  validator.validateSignup,
   userController.registerUser
 );
 router.route("/login").post(validator.validateSignin, userController.loginUser);
