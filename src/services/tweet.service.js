@@ -15,11 +15,11 @@ class TweetService {
     return await this.TweetRepository.createTweet(content, userId);
   }
   async updateTweet(content, id) {
-    return await this.TweetRepository.updateUser(content, id);
+    return await this.TweetRepository.updateTweet(content, id);
   }
 
   async deleteTweet(id) {
-    return await this.TweetRepository.deleteUser(id);
+    return await this.TweetRepository.deleteTweet(id);
   }
 }
 

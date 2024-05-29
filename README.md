@@ -19,6 +19,20 @@
 - [✅] Update Avatar
 - [✅] Update CoverImage
 
+## Tweets Controller
+
+- [✅] Get User Tweets
+- [✅] Update Tweets
+- [✅] Create Tweets
+- [✅] Update Tweets
+
+## Comment Controller
+
+- [✅] Get Video Comments
+- [✅] Add Comment
+- [✅] Update Comment
+- [✅] Delete Comment
+
 ## Best API Practices used
 
 - [✅] Use resource name (nouns)
@@ -26,8 +40,8 @@
 - [✅] Idempotency
 - [✅] Use versioning
 - [✅] Query after soft deletion
-- [] Pagination
-- [] Sorting
+- [✅] Pagination
+- [✅] Sorting
 - [] Filtering
 - [] Secure Access
 - [] Resource cross references

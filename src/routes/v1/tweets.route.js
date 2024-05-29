@@ -9,16 +9,16 @@ router.use(verifyJWT);
 
 // TODO: GET ROUTES
 
-router.route("/user/:userId").get(getTweetsByUser);
+router.route("/user/:id").get(tweetControler.getUserTweets);
 
 // TODO: POST ROUTES
 
 router.post("/", validateTweet, tweetControler.createTweet);
 
 // TODO: PATCH ROUTES
-router.route("/:tweetId").patch(tweetControler.updateTweet);
+router.route("/:id").patch(tweetControler.updateTweet);
 
 // TODO: DELETE ROUTES
-router.route("/:tweetId").delete(tweetControler.deleteTweet);
+router.route("/:id").delete(tweetControler.deleteTweet);
 
 export default router;

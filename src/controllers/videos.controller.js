@@ -232,7 +232,6 @@ export {
   getVideoById,
   deleteVideo,
   restoreVideo,
-  getAllVideosForChannel,
   publishAVideo,
   updateVideo,
   togglePublishStatus,

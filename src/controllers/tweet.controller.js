@@ -7,11 +7,12 @@ import db from "../db/connection.db.js";
 const Tweet = new TweetService(new TweetRepository(db));
 
 const createTweet = asyncHandler(async (req, res) => {
+  const { content } = req.body;
   //TODO: create tweet
   if (!req.body) {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "tweet required");
   }
-  const tweets = await Tweet.createTweet(req.body, req?.user?.id);
+  const tweets = await Tweet.createTweet(content, req?.user?.id);
   if (!tweets) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "tweet not found");
   }
@@ -28,7 +29,9 @@ const createTweet = asyncHandler(async (req, res) => {
 
 const getUserTweets = asyncHandler(async (req, res) => {
   // TODO: get user tweets
-  const { id } = Number(req.params);
+
+  const id = Number(req.params?.id);
+  console.log(id);
   if (!id) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "User id not found");
   }
@@ -48,11 +51,12 @@ const getUserTweets = asyncHandler(async (req, res) => {
 });
 
 const updateTweet = asyncHandler(async (req, res) => {
+  const { content } = req.body;
   //TODO: update tweet
   if (!req.body) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "Content required");
   }
-  const tweet = await Tweet.updateTweet(req.body.content, req.params.id);
+  const tweet = await Tweet.updateTweet(content, req.params?.id);
   if (!tweet || tweet.length === 0) {
     throw new ApiError(HttpStatusCodes.NOT_MODIFIED, "Tweet not updated");
   }
@@ -69,7 +73,7 @@ const updateTweet = asyncHandler(async (req, res) => {
 
 const deleteTweet = asyncHandler(async (req, res) => {
   //TODO: delete tweet
-  const { id } = Number(req.params);
+  const id = Number(req.params?.id);
   if (!id) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "User id not found");
   }

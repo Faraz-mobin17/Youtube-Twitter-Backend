@@ -21,12 +21,15 @@ class CommentRepository {
   }
 
   // TODO: Get all the comments for a video by its ID and page and limit
-  async getVideoComments(video_id, page, limit) {
+  async getVideoComments(videoId, page, limit) {
     try {
-      const result = await this.db.executeQuery(
-        "SELECT * FROM comments WHERE video_id = ? LIMIT ? OFFSET ?",
-        [video_id, limit, (page - 1) * limit]
-      );
+      console.log("video id: ", videoId, "page: ", page, " limit: ", limit);
+      const offset = (page - 1) * limit;
+      console.log(offset);
+      const query = `SELECT * FROM comments WHERE video_id = ? LIMIT ${limit} OFFSET ${offset}`;
+      const params = [videoId];
+
+      const result = await this.db.executeQuery(query, params);
       return result;
     } catch (error) {
       console.error("Failed to get comments:", error);
@@ -52,7 +55,7 @@ class CommentRepository {
   async updateComment(userId, commentId, content) {
     try {
       const result = await this.db.executeQuery(
-        "UPDATE comments SET content = ? WHERE id = ? AND WHERE user_id = ?;",
+        "UPDATE comments SET content = ? WHERE id = ? AND  user_id = ?;",
         [content, commentId, userId]
       );
       return result;

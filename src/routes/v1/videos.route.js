@@ -1,5 +1,5 @@
 import express from "express";
-import { AuthService, upload } from "../../middlewares/index.js";
+import { verifyJWT, upload } from "../../middlewares/index.js";
 import { videoController } from "../../controllers/index.js";
 
 import apicache from "apicache";
@@ -7,7 +7,7 @@ let cache = apicache.middleware;
 
 const router = express.Router();
 
-router.use(AuthService.verifyJWT); // apply jwt awt to all routes
+router.use(verifyJWT); // apply jwt awt to all routes
 
 // TODO: GET ROUTES
 
@@ -34,7 +34,7 @@ router.route("/").post(
 
 router
   .route("/:videoId")
-  .patch(multer.upload.single("thumbnail"), videoController.updateVideo);
+  .patch(upload.single("thumbnail"), videoController.updateVideo);
 
 router
   .route("/toggle/publish/:videoId")

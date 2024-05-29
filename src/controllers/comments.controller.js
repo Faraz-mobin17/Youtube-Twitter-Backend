@@ -5,20 +5,22 @@ import { CommentRepository } from "../repositories/comment.repository.js";
 import { CommentService } from "../services/comment.service.js";
 import db from "../db/connection.db.js";
 import { VideoService } from "../services/video.service.js";
+import { VideoRepository } from "../repositories/video.repository.js";
 
 const Comment = new CommentService(new CommentRepository(db));
 const Video = new VideoService(new VideoRepository(db));
 
 const getVideoComments = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
+  const videoId = req.params?.videoId;
+  console.log(videoId);
   const { page = 1, limit = 10 } = req.query;
 
-  const video = await Video.getVideoById(videoId);
+  const video = await Video.getVideoById(videoId, req.user?.id);
 
   if (!video) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "Video not found");
   }
-
+  console.log("I'm here", videoId, page, limit);
   const comments = await Comment.getVideoComments(videoId, page, limit);
 
   if (!comments || comments.length === 0) {
@@ -41,20 +43,23 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
   // TODO: add a comment to a video
-  const { videoId } = req.params;
+  const videoId = req.params?.videoId;
+
   const userId = req.user?.id;
 
-  const video = await Video.getVideoById(videoId);
+  const { content } = req.body;
+
+  const video = await Video.getVideoById(videoId, userId);
 
   if (!video) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "Video not found");
   }
 
-  if (!req.body) {
+  if (!content) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "Comment required");
   }
 
-  const comment = await Comment.addComment(req.body, videoId, userId);
+  const comment = await Comment.addComment(content, videoId, userId);
 
   if (!comment || comment.length === 0) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "Comment not found");
@@ -73,8 +78,11 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
   const { commentId } = req.params; // Assuming the comment ID is passed as a URL parameter
+
   const { content } = req.body; // The new data for the comment
+
   const userId = req.user?.id;
+
   if (!content) {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "No data provided");
   }

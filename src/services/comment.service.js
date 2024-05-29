@@ -18,11 +18,11 @@ class CommentService {
   async addComment(content, videoId, userId) {
     return await this.CommentRepository.addComment(content, videoId, userId);
   }
-  async updateComment(userId, commentId, commentData) {
+  async updateComment(userId, commentId, content) {
     return await this.CommentRepository.updateComment(
       userId,
       commentId,
-      commentData
+      content
     );
   }
 

@@ -1,5 +1,3 @@
-import { deleteVideo } from "../controllers/videos.controller";
-
 class VideoRepository {
   constructor(db) {
     this.db = db;
