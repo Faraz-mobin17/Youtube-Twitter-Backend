@@ -11,7 +11,7 @@ const createTweet = asyncHandler(async (req, res) => {
   if (!req.body) {
     throw new ApiError(HttpStatusCodes.BAD_REQUEST, "tweet required");
   }
-  const tweets = await Tweet.createTweet(req.body);
+  const tweets = await Tweet.createTweet(req.body, req?.user?.id);
   if (!tweets) {
     throw new ApiError(HttpStatusCodes.NOT_FOUND, "tweet not found");
   }

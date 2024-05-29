@@ -1,17 +1,24 @@
 import express from "express";
 import { tweetControler } from "../../controllers/index.js";
-import { validator, Auth } from "../../middlewares/index.js";
+import { validateTweet, verifyJWT } from "../../middlewares/index.js";
 
 const router = express.Router();
 
-// create tweet
-router.post("/", validator.validateTweet, tweetControler.createTweet);
+// TODO: use middleware to validate JWT on all routes
+router.use(verifyJWT);
 
-// Routes for specific user by ID
-router
-  .route("/:id")
-  .get([Auth.verifyJWT, tweetControler.getUserTweets])
-  .patch([Auth.verifyJWT, validator.validateTweet, tweetControler.updateTweet])
-  .delete([Auth.verifyJWT, tweetControler.deleteTweet]);
+// TODO: GET ROUTES
+
+router.route("/user/:userId").get(getTweetsByUser);
+
+// TODO: POST ROUTES
+
+router.post("/", validateTweet, tweetControler.createTweet);
+
+// TODO: PATCH ROUTES
+router.route("/:tweetId").patch(tweetControler.updateTweet);
+
+// TODO: DELETE ROUTES
+router.route("/:tweetId").delete(tweetControler.deleteTweet);
 
 export default router;
