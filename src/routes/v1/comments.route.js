@@ -1,19 +1,22 @@
 import express from "express";
-import { Auth, validator } from "../../middlewares/index.js";
+import { verifyJWT, validateComment } from "../../middlewares/index.js";
 import { commentController } from "../../controllers/index.js";
 
 const router = express.Router();
 
-router.post("/", [validator.validateComment, commentController.addComment]);
+// TODO: USE MIDDLEWARE FOR ALL ROUTES
+router.use(verifyJWT);
 
-router
-  .route("/:id")
-  .get([Auth.verifyJWT, commentController.getVideoComments])
-  .patch([
-    Auth.verifyJWT,
-    validator.validateComment,
-    commentController.updateComment,
-  ])
-  .delete([Auth.verifyJWT, commentController.deleteComment]);
+// TODO: GET ROUTES
+router.route("/:videoId").get(commentController.getVideoComments);
+
+// TODO: POST ROUTES
+router.route("/:videoId").post(validateComment, commentController.addComment);
+
+// TODO: PATCH ROUTES
+router.route("/channel/:commentId").patch(commentController.updateComment);
+
+// TODO: DELETE ROUTES
+router.route("/channel/:commentId").delete(commentController.deleteComment);
 
 export default router;
