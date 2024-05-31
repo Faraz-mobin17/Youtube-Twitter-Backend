@@ -1,16 +1,23 @@
 import express from "express";
-import { Auth, verifyPremium } from "../middlewares/index.js";
+import { verifyJWT, upload } from "../../middlewares/index.js";
 import { videoController } from "../../controllers/index.js";
+
 import apicache from "apicache";
 let cache = apicache.middleware;
 
 const router = express.Router();
 
-router.get("/", cache("5 minutes"), videoController.getAllVideos);
-router.get("/:id", cache("5 minutes"), videoController.getVideoById);
-router.post(
-  "/",
-  upload.fileds([
+router.use(verifyJWT); // apply jwt awt to all routes
+
+// TODO: GET ROUTES
+
+router.route("/").get(cache("5 minutes"), videoController.getAllVideos);
+router.route("/:videoId").get(cache("5 minutes"), videoController.getVideoById);
+
+// TODO: POST ROUTES
+
+router.route("/").post(
+  upload.fields([
     {
       name: "videoFile",
       maxCount: 1,
@@ -20,18 +27,21 @@ router.post(
       maxCount: 1,
     },
   ]),
-  publishAVideo
+  videoController.publishAVideo
 );
 
-router.delete("/:id", [
-  Auth.verifyJWT,
-  verifyPremium.verifyPremiumUser,
-  videoController.deleteVideo,
-]);
-router.post("/:id/restore", [
-  Auth.verifyJWT,
-  verifyPremium.verifyPremiumUser,
-  videoController.restoreVideo,
-]);
+// TODO: PATCH ROUTES
+
+router
+  .route("/:videoId")
+  .patch(upload.single("thumbnail"), videoController.updateVideo);
+
+router
+  .route("/toggle/publish/:videoId")
+  .patch(videoController.togglePublishStatus);
+
+// TODO: DELETE ROUTES
+
+router.route("/:videoId").delete(videoController.deleteVideo);
 
 export default router;

@@ -3,17 +3,7 @@ class VideoRepository {
     this.db = db;
   }
 
-  async getAllVideos() {
-    try {
-      const query = `SELECT * FROM videos`;
-      return await this.db.executeQuery(query);
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
-  async getAllVideosForChannel(
+  async getAllVideos(
     page = 1,
     limit = 10,
     searchQuery,
@@ -23,8 +13,8 @@ class VideoRepository {
   ) {
     try {
       const offset = (page - 1) * limit;
-      const query = `SELECT * FROM videos WHERE user_id = ? AND title LIKE ? ORDER BY ${sortBy} ${sortType} LIMIT ? OFFSET ?`;
-      const values = [userId, `%${searchQuery}%`, limit, offset];
+      const query = `SELECT * FROM videos WHERE title LIKE ? ORDER BY ${sortBy} ${sortType} LIMIT ? OFFSET ?`;
+      const values = [`%${searchQuery}%`, limit, offset];
       return await this.db.executeQuery(query, values);
     } catch (error) {
       console.log(error);
@@ -34,22 +24,36 @@ class VideoRepository {
 
   async getVideoById(videoId, userId) {
     try {
-      const query = `SELECT FROM videos WHERE id = ? AND user_id = ?`;
-      return await this.db.executeQuery(query, [videoId, userId]);
+      const query = `SELECT * FROM videos WHERE id = ? AND user_id = ?`;
+      const values = [videoId, userId];
+      return await this.db.executeQuery(query, values);
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
-  async publishAVideo(videoData) {
+  async deleteVideo(videoId, userId) {
     try {
-      // Save video data to the database
-      const query = `INSERT INTO videos (title, description, url, user_id) VALUES (?, ?, ?, ?)`;
+      const query = `DELETE FROM videos WHERE id = ? AND user_id = ?`;
+      const values = [videoId, userId];
+      return await this.db.executeQuery(query, values);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+  async publishAVideo(videoDetails) {
+    try {
+      const query = `INSERT INTO videos (user_id,videoFile,thumbnail,title,description,duration,views,isPublished) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       const values = [
-        videoData.title,
-        videoData.description,
-        videoData.url,
-        videoData.user_id,
+        videoDetails.userId,
+        videoDetails.videoFile,
+        videoDetails.thumbnail,
+        videoDetails.title,
+        videoDetails.description,
+        videoDetails.duration,
+        videoDetails.views,
+        videoDetails.isPublished,
       ];
       return await this.db.executeQuery(query, values);
     } catch (error) {
@@ -57,80 +61,21 @@ class VideoRepository {
       throw error;
     }
   }
-  async updateVideo(req) {
+  async updateVideo(videoId, title, description) {
     try {
-      const { videoId } = req.params;
-      const { title, description, thumbnail } = req.body;
-
-      // Construct the SQL query to update video details
-      const query = `UPDATE videos SET title = ?, description = ?, thumbnail = ? WHERE id = ? AND user_id = ?`;
-      const values = [title, description, thumbnail, videoId, req.user.id];
-
-      // Execute the query
+      const query = `UPDATE videos SET title = ?, description = ? WHERE id = ?`;
+      const values = [title, description, videoId];
       return await this.db.executeQuery(query, values);
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
-  async togglePublishStatus(videoId, userId) {
+  async togglePublishStatus(videoId, isPublished) {
     try {
-      // First, retrieve the current publication status of the video
-      const getStatusQuery = `SELECT is_published FROM videos WHERE id = ? AND user_id = ?`;
-      const currentStatus = await this.db.executeQuery(getStatusQuery, [
-        videoId,
-        userId,
-      ]);
-
-      if (currentStatus.length === 0) {
-        throw new Error("Video not found");
-      }
-
-      // Toggle the publication status
-      const newStatus = !currentStatus[0].is_published;
-
-      // Update the publication status in the database
-      const updateStatusQuery = `UPDATE videos SET is_published = ? WHERE id = ? AND user_id = ?`;
-      await this.db.executeQuery(updateStatusQuery, [
-        newStatus,
-        videoId,
-        userId,
-      ]);
-
-      return {
-        success: true,
-        message: "Publication status toggled successfully.",
-      };
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-  async deleteVideo(videoId, userId) {
-    // TODO: delete a video with userid and videoid
-    try {
-      const query = `DELETE FROM Videos WHERE id = ? AND user_id = ? AND is_premium = FALSE`;
-      return this.db.executeQuery(query, [videoId, userId]);
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
-  async softDeleteVideo(videoId, userId) {
-    try {
-      const query = `UPDATE videos SET is_deleted = TRUE WHERE id = ? AND user_id = ?`;
-      return await this.db.executeQuery(query, [videoId, userId]);
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
-  async restoreVideo(videoId, userId) {
-    try {
-      const query = `UPDATE videos SET is_deleted = FALSE WHERE id = ? AND user_id = ?`;
-      return await this.db.executeQuery(query, [videoId, userId]);
+      const query = `UPDATE videos SET isPublished = ? WHERE id = ?`;
+      const values = [isPublished, videoId];
+      return await this.db.executeQuery(query, values);
     } catch (error) {
       console.log(error);
       throw error;

@@ -1,15 +1,20 @@
-import * as AuthService from "./authService.middleware.js";
-import * as uploadOnCloudinary from "./cloudinary.middleware.js";
-import * as Auth from "./JWTAuth.middleware.js";
-import * as multer from "./multer.middleware.js";
-import * as validator from "./validator.middleware.js";
-import * as verifyPremium from "./verifyPremiumUser.middlewares.js";
+export {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "./cloudinary.middleware.js";
+
+export { default as AuthService } from "./authService.middleware.js";
+
+export { verifyJWT } from "./JWTAuth.middleware.js";
+
+export { upload } from "./multer.middleware.js";
 
 export {
-  AuthService,
-  multer,
-  uploadOnCloudinary,
-  validator,
-  Auth,
-  verifyPremium,
-};
+  validateComment,
+  validateSignin,
+  validateSignup,
+  validateTweet,
+  validateUpdateQuery,
+} from "./validator.middleware.js";
+
+export { verifyPremiumUser } from "./verifyPremiumUser.middlewares.js";

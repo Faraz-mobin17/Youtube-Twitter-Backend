@@ -19,6 +19,27 @@
 - [✅] Update Avatar
 - [✅] Update CoverImage
 
+## Tweets Controller
+
+- [✅] Get User Tweets
+- [✅] Update Tweets
+- [✅] Create Tweets
+- [✅] Update Tweets
+
+## Comment Controller
+
+- [✅] Get Video Comments
+- [✅] Add Comment
+- [✅] Update Comment
+- [✅] Delete Comment
+
+## Likes Controller
+
+- [✅] toggleVideoLike
+- [✅] toggleCommentLike
+- [✅] toggleTweetLike
+- [✅] getLikedVideos
+
 ## Best API Practices used
 
 - [✅] Use resource name (nouns)
@@ -26,9 +47,9 @@
 - [✅] Idempotency
 - [✅] Use versioning
 - [✅] Query after soft deletion
-- [] Pagination
-- [] Sorting
-- [] Filtering
+- [✅] Pagination
+- [✅] Sorting
+- [✅] Filtering
 - [] Secure Access
 - [] Resource cross references
 - [✅] Rate Limit
