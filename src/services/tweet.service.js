@@ -7,6 +7,10 @@ class TweetService {
     return this.TweetRepository;
   }
 
+  async getTweetById(id) {
+    return await this.TweetRepository.getTweetById(id);
+  }
+
   async getUserTweets(id) {
     return await this.TweetRepository.getUserTweets(id);
   }

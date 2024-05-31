@@ -42,7 +42,7 @@
 - [✅] Query after soft deletion
 - [✅] Pagination
 - [✅] Sorting
-- [] Filtering
+- [✅] Filtering
 - [] Secure Access
 - [] Resource cross references
 - [✅] Rate Limit

@@ -7,6 +7,16 @@ class TweetRepository {
     return this.db;
   }
 
+  async getTweetById(id) {
+    try {
+      const query = `SELECT content FROM tweets WHERE id = ?`;
+      const response = await this.db.executeQuery(query, [id]);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getUserTweets(id) {
     try {
       const query = `SELECT content FROM Tweets WHERE user_id = ?`;

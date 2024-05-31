@@ -6,6 +6,20 @@ import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import db from "../db/connection.db.js";
 const Tweet = new TweetService(new TweetRepository(db));
 
+const getTweetById = asyncHandler(async (req, res) => {
+  const { tweetId } = req.params;
+
+  const tweet = await Tweet.getTweetById(tweetId);
+  if (!tweet) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "Tweet not found");
+  }
+  res
+    .status(HttpStatusCodes.OK)
+    .json(
+      new ApiResponse(HttpStatusCodes.OK, tweet, "Tweet fetched successfully")
+    );
+});
+
 const createTweet = asyncHandler(async (req, res) => {
   const { content } = req.body;
   //TODO: create tweet
@@ -88,4 +102,4 @@ const deleteTweet = asyncHandler(async (req, res) => {
     );
 });
 
-export { createTweet, getUserTweets, updateTweet, deleteTweet };
+export { createTweet, getUserTweets, updateTweet, deleteTweet, getTweetById };

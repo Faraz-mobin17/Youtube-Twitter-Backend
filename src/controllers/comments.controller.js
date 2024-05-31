@@ -10,6 +10,28 @@ import { VideoRepository } from "../repositories/video.repository.js";
 const Comment = new CommentService(new CommentRepository(db));
 const Video = new VideoService(new VideoRepository(db));
 
+const getCommentById = asyncHandler(async (req, res) => {
+  const { commentId } = req.params; // Assuming the comment ID is passed as a URL parameter
+
+  const userId = req.user?.id;
+
+  const comment = await Comment.getCommentById(commentId, userId);
+
+  if (!comment) {
+    throw new ApiError(HttpStatusCodes.NOT_FOUND, "Comment not found");
+  }
+
+  res
+    .status(HttpStatusCodes.OK)
+    .json(
+      new ApiResponse(
+        HttpStatusCodes.OK,
+        comment,
+        "Comment fetched successfully"
+      )
+    );
+});
+
 const getVideoComments = asyncHandler(async (req, res) => {
   const videoId = req.params?.videoId;
   console.log(videoId);
@@ -137,4 +159,10 @@ const deleteComment = asyncHandler(async (req, res) => {
     );
 });
 
-export { getVideoComments, addComment, updateComment, deleteComment };
+export {
+  getVideoComments,
+  addComment,
+  updateComment,
+  deleteComment,
+  getCommentById,
+};
