@@ -33,6 +33,13 @@
 - [✅] Update Comment
 - [✅] Delete Comment
 
+## Likes Controller
+
+- [✅] toggleVideoLike
+- [✅] toggleCommentLike
+- [✅] toggleTweetLike
+- [✅] getLikedVideos
+
 ## Best API Practices used
 
 - [✅] Use resource name (nouns)
