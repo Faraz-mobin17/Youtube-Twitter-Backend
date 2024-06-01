@@ -6,6 +6,10 @@
 | -------------- | --------------------------------------------------------- |
 | MySQL CRUD APP | https://documenter.getpostman.com/view/9805137/2sA35D42ne |
 
+##
+
+["Model Link"](https://drawsql.app/teams/farazs-team/diagrams/social-media)
+
 ## User Controller Methods
 
 - [✅] Get all Users
