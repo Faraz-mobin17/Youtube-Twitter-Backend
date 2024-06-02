@@ -2,18 +2,8 @@ class VideoService {
   constructor(VideoRepository) {
     this.VideoRepository = VideoRepository;
   }
-  async getAllVideos() {
-    return await this.VideoRepository.getAllVideos();
-  }
-  async getAllVideosForChannel(
-    page = 1,
-    limit = 10,
-    query,
-    sortBy,
-    sortType,
-    userId
-  ) {
-    return await this.VideoRepository.getAllVideosForChannel(
+  async getAllVideos(page = 1, limit = 10, query, sortBy, sortType, userId) {
+    return await this.VideoRepository.getAllVideos(
       page,
       limit,
       query,
@@ -28,23 +18,15 @@ class VideoService {
   async deleteVideo(videoId, userId) {
     return await this.VideoRepository.deleteVideo(videoId, userId);
   }
-  async softDeleteVideo(videoId, userId) {
-    return await this.VideoRepository.softDeleteVideo(videoId, userId);
+  async publishAVideo(videoDetails) {
+    return await this.VideoRepository.publishAVideo(videoDetails);
+  }
+  async updateVideo(videoId, title, description) {
+    return await this.VideoRepository.updateVideo(videoId, title, description);
   }
 
-  async restoreVideo(videoId, userId) {
-    return await this.VideoRepository.restoreVideo(videoId, userId);
-  }
-
-  async publishAVideo(videoData) {
-    return await this.VideoRepository.publishAVideo(videoData);
-  }
-
-  async updateVideo(videoId) {
-    return await this.VideoRepository.updateVideo(videoId);
-  }
-  async togglePublishStatus(videoId) {
-    return await this.VideoRepository.togglePublishStatus(videoId);
+  async togglePublishStatus(videoId, isPublished) {
+    return await this.VideoRepository.togglePublishStatus(videoId, isPublished);
   }
 }
 

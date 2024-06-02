@@ -11,7 +11,7 @@ class UserRepository {
   async getUser(id) {
     const query = `SELECT * FROM USERS WHERE id = ?`;
     const response = await this.db.executeQuery(query, [id]);
-    console.log("inside getuser user repo", response[0]);
+
     return response[0];
   }
 
@@ -20,12 +20,7 @@ class UserRepository {
       .map((key) => `${key} = ?`)
       .join(", ");
     const valuesToUpdate = Object.values(params);
-
     const query = `UPDATE USERS SET ${columnsToUpdate} WHERE id = ?`;
-
-    console.log("query: ", query);
-    console.log("values to update: ", valuesToUpdate);
-    console.log("columns to update", columnsToUpdate);
     try {
       const result = await this.db.executeQuery(query, [...valuesToUpdate, id]);
       return result;
@@ -61,10 +56,9 @@ class UserRepository {
   }
   async checkLoginUserExists(email) {
     try {
-      console.log("Inside checkLoginUser method in user repo", email);
       const query = `SELECT * FROM USERS where email = ?`;
       const response = await this.db.executeQuery(query, [email]);
-      console.log(response);
+
       return response[0];
     } catch (error) {
       throw error;

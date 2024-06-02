@@ -7,7 +7,7 @@ import * as subscriptionController from "./subscription.controller.js";
 import * as tweetControler from "./tweet.controller.js";
 import * as userController from "./users.controller.js";
 import * as videoController from "./videos.controller.js";
-
+import * as LikeController from "./likes.controller.js";
 export {
   commentController,
   dashboardController,
@@ -18,4 +18,5 @@ export {
   tweetControler,
   userController,
   videoController,
+  LikeController,
 };
