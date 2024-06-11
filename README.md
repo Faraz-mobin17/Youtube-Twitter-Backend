@@ -1,4 +1,4 @@
-# MySQL CRUD APP
+# Youtube Clone APP
 
 ## API DOCUMENTATION
 
@@ -8,7 +8,7 @@
 
 ## Model Link
 
-["Model Link"](https://drawsql.app/teams/farazs-team/diagrams/social-media)
+[Youtube Clone Model](https://drawsql.app/teams/farazs-team/diagrams/social-media)
 
 ## Problem I faced during design and building this product
 
@@ -30,6 +30,8 @@
 
 - [✅] As program was becoming complex it was difficult to handle import statement so I added
   index.js file in every folder that exports
+
+# Features
 
 ## User Controller Methods
 
@@ -67,6 +69,7 @@
 
 ## Best API Practices used
 
+- [✅] Validation
 - [✅] Use resource name (nouns)
 - [✅] Use plurals
 - [✅] Idempotency
@@ -79,3 +82,6 @@
 - [] Resource cross references
 - [✅] Rate Limit
 - [✅] Caching
+- [] Ip Blocking
+- [] Sanitization
+- [] Web app firewall (applicable after hosting)
