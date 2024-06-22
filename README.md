@@ -33,6 +33,44 @@
 
 # Features
 
+# Tech Stack
+
+### Frontend
+
+- [✅] React
+  - [✅] Redux Toolkit
+  - [✅] Tailwind CSS
+  - [✅] React Router
+  - [✅] React hook Forms
+  - [✅] React Icons
+- [✅] bundler
+  - [✅] Vite
+
+### Backend
+
+- [✅] Node and Express
+  - [✅] Cookie Parser (storing cookie)
+  - [✅] Cors
+  - [✅] morgan (loggin)
+  - [✅] winston (logging)
+  - [✅] JWT and Bcrypt
+  - [✅] cloudinary (static storage)
+  - [✅] multer (file upload)
+  - [✅] apicache (caching)
+  - [✅] express rate limiter (rate limiting)
+  - [✅] dotenv (for environment variable)
+
+#### Database
+
+- [✅] MySQL
+  - [✅] mysql2 Node JS Driver
+
+### Dev Dependencies
+
+- [✅] prettier
+- [✅] eslint
+- [✅] nodemon
+
 ## User Controller Methods
 
 - [✅] Get all Users
