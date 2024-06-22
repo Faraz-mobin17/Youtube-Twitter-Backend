@@ -1,5 +1,5 @@
 import { TweetRepository } from "../repositories/tweet.repository.js";
-import { TweetService } from "../services/tweet.service.js";
+import { TweetService } from "../services/tweet-service.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";

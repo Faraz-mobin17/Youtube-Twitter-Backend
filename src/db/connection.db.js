@@ -1,6 +1,8 @@
 import mysql from "mysql2/promise";
 import { USER, DATABASE, HOST, PASS, MYSQL_PORT } from "../../index.js";
 
+// Singleton class to connect to the database
+
 let instance;
 
 class Database {
