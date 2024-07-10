@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-import app from "../index.js";
+import app from "../index";
 import debug from "debug";
 import http from "http";
 
@@ -27,7 +27,7 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, () => console.log(`listening on port ${port}`));
+server.listen(port, () => console.log(`listening on http://localhost:${port}`));
 server.on("error", onError);
 server.on("listening", onListening);
 

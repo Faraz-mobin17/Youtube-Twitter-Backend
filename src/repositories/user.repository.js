@@ -9,10 +9,14 @@ class UserRepository {
   }
 
   async getUser(id) {
-    const query = `SELECT * FROM USERS WHERE id = ?`;
-    const response = await this.db.executeQuery(query, [id]);
+    try {
+      const query = `SELECT * FROM USERS WHERE id = ?`;
+      const response = await this.db.executeQuery(query, [id]);
 
-    return response[0];
+      return response[0];
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async updateUser(params = {}, id) {

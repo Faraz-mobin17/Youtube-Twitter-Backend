@@ -1,5 +1,3 @@
-# Youtube Clone APP
-
 ## API DOCUMENTATION
 
 | Api Doc       | Link                                                      |
@@ -33,7 +31,7 @@
 
 # Features
 
-# Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -57,7 +55,7 @@
   - [✅] cloudinary (static storage)
   - [✅] multer (file upload)
   - [✅] apicache (caching)
-  - [✅] express rate limiter (rate limiting)
+  - [❌] express rate limiter (rate limiting)
   - [✅] dotenv (for environment variable)
 
 #### Database

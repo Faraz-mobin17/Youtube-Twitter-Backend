@@ -97,9 +97,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
   console.log("inside user controller", avatarLocalPath, coverImageLocalPath);
-  const avatar = await uploadOnCloudinary.uploadOnCloudinary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = coverImageLocalPath
-    ? await uploadOnCloudinary.uploadOnCloudinary(coverImageLocalPath)
+    ? await uploadOnCloudinary(coverImageLocalPath)
     : null;
 
   if (!avatar) {
@@ -203,7 +203,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is missing");
   }
-  const avatar = await uploadOnCloudinary.uploadOnCloudinary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
   if (!avatar.url) {
     throw new ApiError(500, "Failed to upload avatar");
   }
@@ -224,8 +224,7 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   if (!coverImageLocalPath) {
     throw new ApiError(400, "Cover image file is missing");
   }
-  const coverImage =
-    await uploadOnCloudinary.uploadOnCloudinary(coverImageLocalPath);
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
   if (!coverImage.url) {
     throw new ApiError(500, "Failed to upload cover image");
   }

@@ -4,7 +4,10 @@ class SubscriptionService {
   }
 
   async toggleSubscription(channelId) {
-    return await this.SubscriptionRepository.toggleSubscription(channelId);
+    return await this.SubscriptionRepository.toggleSubscription(
+      userId,
+      channelId
+    );
   }
   async getUserChannelSubscribers(channelId) {
     return await this.SubscriptionRepository.getUserChannelSubscribers(

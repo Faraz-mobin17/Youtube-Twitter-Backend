@@ -1,0 +1,101 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  video_id   Int
+  content    String    @db.Text
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?  @default(false)
+
+  @@index([user_id], map: "user_id_idx")
+  @@index([video_id], map: "video_id_idx")
+}
+
+model likes {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  video_id   Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  likedBy    Boolean?  @default(false)
+
+  @@index([user_id], map: "user_id_idx")
+  @@index([video_id], map: "video_id_idx")
+}
+
+model subscriptions {
+  id            Int       @id @default(autoincrement())
+  subscriber_id Int
+  channel_id    Int
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  isSubscribed  Int?      @default(0) @db.TinyInt
+
+  @@index([channel_id], map: "channel_id_idx")
+  @@index([subscriber_id], map: "subscriber_id_idx")
+}
+
+model tweets {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  content    String    @db.Text
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?  @default(false)
+
+  @@index([user_id], map: "user_id_idx")
+}
+
+model users {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique(map: "username") @db.VarChar(255)
+  email      String    @unique(map: "email") @db.VarChar(255)
+  firstname  String    @db.VarChar(255)
+  lastname   String?   @db.VarChar(255)
+  avatar     String?   @db.VarChar(255)
+  coverImage String?   @db.VarChar(255)
+  password   String    @db.VarChar(5000)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_premium Boolean?  @default(false)
+  videos     videos[]
+
+  @@index([email], map: "email_idx")
+  @@index([username], map: "username_idx")
+}
+
+model videos {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  videoFile   String    @db.VarChar(255)
+  thumbnail   String    @db.VarChar(255)
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  duration    Int
+  views       Int
+  isPublished Boolean
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted  Boolean?  @default(false)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "videos_ibfk_1")
+
+  @@index([description(length: 255)], map: "description_idx")
+  @@index([title], map: "title")
+  @@index([title], map: "title_idx")
+  @@index([user_id], map: "user_id_idx")
+}
+
+model watchhistory {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  video_id   Int
+  watched_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([user_id], map: "user_id_idx")
+  @@index([video_id], map: "video_id_idx")
+}

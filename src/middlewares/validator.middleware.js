@@ -9,6 +9,8 @@ import {
 
 const validateSignup = (req, res, next) => {
   const { error } = signupSchema.safeParse(req.body);
+  console.log(req.body);
+  console.log("inside validator middleware");
   if (error) {
     return res.status(400).json({ error: error.message });
   }
