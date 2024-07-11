@@ -1,22 +1,15 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse } from "../utils/api-handler.js";
 import { asyncHandler } from "../utils/async-handler.js";
-import { CommentRepository } from "../repositories/comment-repository.js";
-import { CommentService } from "../services/comment-service.js";
-import db from "../db/connection.db.js";
-import { VideoService } from "../services/video-service.js";
-import { VideoRepository } from "../repositories/video-repository.js";
+import { CommentService, VideoService } from "../services/index.js";
 import { StatusCodes } from "http-status-codes";
-
-const Comment = new CommentService(new CommentRepository(db));
-const Video = new VideoService(new VideoRepository(db));
 
 const getCommentById = asyncHandler(async (req: Request, res: Response) => {
   const { commentId } = req.params; // Assuming the comment ID is passed as a URL parameter
 
   const userId = req.user?.id;
 
-  const comment = await Comment.getCommentById(commentId, userId);
+  const comment = await CommentService.getCommentById();
 
   if (!comment) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");
@@ -34,13 +27,13 @@ const getVideoComments = asyncHandler(async (req: Request, res: Response) => {
   console.log(videoId);
   const { page = 1, limit = 10 } = req.query;
 
-  const video = await Video.getVideoById(videoId, req.user?.id);
+  const video = await VideoService.getVideoById(videoId, req.user?.id);
 
   if (!video) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Video not found");
   }
   console.log("I'm here", videoId, page, limit);
-  const comments = await Comment.getVideoComments(videoId, page, limit);
+  const comments = await CommentService.getVideoComments();
 
   if (!comments || comments.length === 0) {
     throw new ApiError(
@@ -64,7 +57,7 @@ const addComment = asyncHandler(async (req: Request, res: Response) => {
 
   const { content } = req.body as ReadableStream<Uint8Array> | any;
 
-  const video = await Video.getVideoById(videoId, userId);
+  const video = await VideoService.getVideoById(videoId, userId);
 
   if (!video) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Video not found");
@@ -74,7 +67,7 @@ const addComment = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment required");
   }
 
-  const comment = await Comment.addComment(content, videoId, userId);
+  const comment = await CommentService.addComment();
 
   if (!comment || comment.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");
@@ -102,17 +95,13 @@ const updateComment = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, "No data provided");
   }
 
-  const comment = await Comment.getCommentById(commentId, userId);
+  const comment = await CommentService.getCommentById();
 
   if (!comment) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");
   }
 
-  const updatedComment = await Comment.updateComment(
-    userId,
-    commentId,
-    content
-  );
+  const updatedComment = await CommentService.updateComment();
 
   if (!updatedComment) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");
@@ -133,13 +122,13 @@ const deleteComment = asyncHandler(async (req: Request, res: Response) => {
   const { commentId } = req.params; // Assuming the comment ID is passed as a URL parameter
   const userId = req.user?.id;
 
-  const comment = await Comment.getCommentById(commentId, userId);
+  const comment = await CommentService.getCommentById();
 
   if (!comment) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");
   }
 
-  const deleted = await Comment.deleteComment(commentId, userId);
+  const deleted = await CommentService.deleteComment();
 
   if (!deleted) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Comment not found");

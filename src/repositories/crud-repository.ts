@@ -8,9 +8,9 @@ export class CrudRepository {
     return await this.model.findMany();
   }
 
-  async getById(id: number) {
+  async getById(data: number) {
     return await this.model.findUnique({
-      where: { id: id },
+      where: { id: data },
     });
   }
 
@@ -25,9 +25,9 @@ export class CrudRepository {
     });
   }
 
-  async delete(id: number) {
+  async delete(data: number) {
     return await this.model.delete({
-      where: { id: id },
+      where: { id: data },
     });
   }
 }

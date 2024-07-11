@@ -3,7 +3,7 @@ import { ApiResponse, ApiError } from "../utils/api-handler.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { uploadOnCloudinary } from "../middlewares/index.js";
 import { StatusCodes } from "http-status-codes";
-import { UserService } from "../services/user-service.js";
+import { UserService } from "../services/index.js";
 
 const getAllUsers = asyncHandler(
   async (_: Request, res: Response): Promise<object> => {
@@ -60,135 +60,29 @@ const deleteUser = asyncHandler(
   }
 );
 
-const loginUser = asyncHandler(async (req, res) => {
-  const response = await UserService.loginUser(
-    req.body.email,
-    req.body.password
-  );
+const getUserChannelProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { username } = req.params;
 
-  const options = {
-    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: true,
-  };
+    if (!username?.trim()) {
+      throw new ApiError(400, "username is missing");
+    }
 
-  return res
-    .status(StatusCodes.OK)
-    .cookie("token", response.token, options)
-    .json(new ApiResponse(StatusCodes.OK, response));
-});
-const logoutUser = asyncHandler(async (_, res) => {
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-  return res
-    .status(StatusCodes.OK)
-    .clearCookie("token", options)
-    .json({ msg: "User logged out" });
-});
+    const channel = await UserService.getUserChannelProfile(username);
 
-const registerUser = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.files?.avatar[0]?.path;
-  //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    if (!channel?.length) {
+      throw new ApiError(404, "channel does not exists");
+    }
 
-  let coverImageLocalPath;
-  if (
-    req.files &&
-    Array.isArray(req.files.coverImage) &&
-    req.files.coverImage.length > 0
-  ) {
-    coverImageLocalPath = req.files.coverImage[0].path;
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, channel[0], "User channel fetched successfully")
+      );
   }
+);
 
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file is required");
-  }
-  console.log("inside user controller", avatarLocalPath, coverImageLocalPath);
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  const coverImage = coverImageLocalPath
-    ? await uploadOnCloudinary(coverImageLocalPath)
-    : null;
-
-  if (!avatar) {
-    throw new ApiError(400, "Avatar file is required");
-  }
-
-  const response = await UserService.registerUser({
-    ...req.body,
-    avatar: avatar.url,
-    coverImage: coverImage?.url || "",
-  });
-
-  if (!response) {
-    throw new ApiError(400, "User not registered");
-  }
-
-  return res
-    .status(StatusCodes.CREATED)
-    .json(
-      new ApiResponse(
-        StatusCodes.CREATED,
-        response,
-        "User registered successfully"
-      )
-    );
-});
-
-const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  const id = req.user?.id;
-
-  console.log(oldPassword, newPassword);
-
-  if (!(oldPassword && newPassword)) {
-    throw new ApiError(StatusCodes.NOT_FOUND, "Password doesn't exists");
-  }
-
-  console.log("user id inside user controller", id);
-
-  const user = await UserService.changeCurrentPassword(
-    id,
-    oldPassword,
-    newPassword
-  );
-
-  if (!user || user.length === 0) {
-    throw new ApiError(StatusCodes.NOT_MODIFIED, "user password not updated");
-  }
-
-  return res
-    .status(StatusCodes.OK)
-    .json(
-      new ApiResponse(
-        StatusCodes.OK,
-        user,
-        "User Password Updated Successfully"
-      )
-    );
-});
-
-const getUserChannelProfile = asyncHandler(async (req, res) => {
-  const { username } = req.params;
-
-  if (!username?.trim()) {
-    throw new ApiError(400, "username is missing");
-  }
-
-  const channel = await UserService.getUserChannelProfile(username);
-
-  if (!channel?.length) {
-    throw new ApiError(404, "channel does not exists");
-  }
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, channel[0], "User channel fetched successfully")
-    );
-});
-
-const getWatchHistory = asyncHandler(async (req, res) => {
+const getWatchHistory = asyncHandler(async (req: Request, res: Response) => {
   const username = req.user?.username;
 
   if (!username) {
@@ -206,7 +100,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, history, "Watch history fetched successfully"));
 });
 
-const updateAvatar = asyncHandler(async (req, res) => {
+const updateAvatar = asyncHandler(async (req: Request, res: Response) => {
   // update avatar of the user
   const avatarLocalPath = req.file?.path;
   if (!avatarLocalPath) {
@@ -227,7 +121,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updateAvatar, "Avatar updated successfully"));
 });
 
-const updateCoverImage = asyncHandler(async (req, res) => {
+const updateCoverImage = asyncHandler(async (req: Request, res: Response) => {
   // update coverimage of the user
   const coverImageLocalPath = req.file?.path;
   if (!coverImageLocalPath) {
@@ -254,12 +148,8 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 export {
   getAllUsers,
   getUser,
-  changeCurrentPassword,
   updateUser,
   deleteUser,
-  loginUser,
-  logoutUser,
-  registerUser,
   getUserChannelProfile,
   getWatchHistory,
   updateAvatar,

@@ -5,6 +5,12 @@ class UserRepository extends CrudRepository {
   constructor() {
     super(prisma.users);
   }
+
+  async getUserChannelProfile(username: string) {
+    // TODO: complete this method
+  }
+
+  async getWatchHistory(username: string) {}
 }
 
 export { UserRepository };

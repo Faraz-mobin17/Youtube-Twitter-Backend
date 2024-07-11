@@ -1,3 +1,7 @@
+# Project
+
+The app is based on monolith architecture
+
 ## API DOCUMENTATION
 
 | Api Doc       | Link                                                      |
@@ -29,7 +33,9 @@
 - [✅] As program was becoming complex it was difficult to handle import statement so I added
   index.js file in every folder that exports
 
-# Features
+- [✅] Migratign whole project to typescript took me a lot to fix bugs other than that I was stuck in when adding the some property to Request Object it took me a while to figure how to take care of that finally fixed it by creating a local.d.ts file and adding a property to the request object.
+
+- [✅] Migrated from using raw SQL to prisma for faster development process.
 
 ## Tech Stack
 
@@ -46,7 +52,7 @@
 
 ### Backend
 
-- [✅] Node and Express
+- [✅] Type Safe Node and Express
   - [✅] Cookie Parser (storing cookie)
   - [✅] Cors
   - [✅] morgan (loggin)
@@ -61,13 +67,15 @@
 #### Database
 
 - [✅] MySQL
-  - [✅] mysql2 Node JS Driver
+  - [✅] mysql2 Node JS Driver (migrated to prisma)
 
 ### Dev Dependencies
 
 - [✅] prettier
 - [✅] eslint
 - [✅] nodemon
+
+# Features
 
 ## User Controller Methods
 
