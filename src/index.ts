@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { ORIGIN } from "../index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const app = express();
+const app: Express = express();
 
 const morganFormat = ":method :url :status :response-time ms";
 
