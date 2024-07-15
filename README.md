@@ -37,6 +37,14 @@ The app is based on monolith architecture
 
 - [✅] Migrated from using raw SQL to prisma for faster development process.
 
+# Features
+
+on the user channel there will be shuffling button along with the popular oldest and newest
+tag.
+
+Subscription will be given priority by being default page on the website and there will
+be separte page as explore like youtube homepage.
+
 ## Tech Stack
 
 ### Frontend
