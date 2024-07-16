@@ -39,11 +39,14 @@ The app is based on monolith architecture
 
 # Features
 
-on the user channel there will be shuffling button along with the popular oldest and newest
-tag.
+- [] on the user channel there will be shuffling button along with the popular oldest and newest
+  tag.
 
-Subscription will be given priority by being default page on the website and there will
-be separte page as explore like youtube homepage.
+- [] Subscription will be given priority by being default page on the website and there will
+  be separte page as explore like youtube homepage.
+
+- [] there will be feature for favorite channel for those channel you will see the video
+  on the top section of the home page and on the subscriptions tab they will be at the top
 
 ## Tech Stack
 
