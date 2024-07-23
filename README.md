@@ -48,6 +48,8 @@ The app is based on monolith architecture
 - [] there will be feature for favorite channel for those channel you will see the video
   on the top section of the home page and on the subscriptions tab they will be at the top
 
+- [] When use schedules multiple videos it automatically becomes playlist and shows as a playlist in subscription tab
+
 ## Tech Stack
 
 ### Frontend
