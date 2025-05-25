@@ -1,7 +1,7 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import { UserService } from "../services/user.service.js";
+import { UserService } from "../services/user-service.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import db from "../db/connection.db.js";
 import { uploadOnCloudinary } from "../middlewares/index.js";

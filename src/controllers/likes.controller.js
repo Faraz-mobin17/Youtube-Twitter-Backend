@@ -1,12 +1,12 @@
 import { ApiError, ApiResponse } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";
 import { LikeRepository } from "../repositories/like.repository.js";
-import { LikeService } from "../services/like.service.js";
-import { VideoService } from "../services/video.service.js";
+import { LikeService } from "../services/like-service.js";
+import { VideoService } from "../services/video-service.js";
 import { VideoRepository } from "../repositories/video.repository.js";
-import { TweetService } from "../services/tweet.service.js";
+import { TweetService } from "../services/tweet-service.js";
 import { TweetRepository } from "../repositories/tweet.repository.js";
-import { CommentService } from "../services/comment.service.js";
+import { CommentService } from "../services/comment-service.js";
 import { CommentRepository } from "../repositories/comment.repository.js";
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import db from "../db/connection.db.js";

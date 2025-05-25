@@ -1,4 +1,4 @@
-import { VideoService } from "../services/video.service.js";
+import { VideoService } from "../services/video-service.js";
 import { VideoRepository } from "../repositories/video.repository.js";
 import { ApiResponse, ApiError } from "../utils/ApiHandler.utils.js";
 import { asyncHandler } from "../utils/asyncHandler.utils.js";

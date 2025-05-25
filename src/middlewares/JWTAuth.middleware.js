@@ -1,7 +1,7 @@
 import { HttpStatusCodes } from "../utils/httpStatusCodes.utils.js";
 import { ApiError } from "../utils/ApiHandler.utils.js";
 import AuthService from "./authService.middleware.js";
-import { UserService } from "../services/user.service.js";
+import { UserService } from "../services/user-service.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import db from "../db/connection.db.js";
 const userservice = new UserService(new UserRepository(db));

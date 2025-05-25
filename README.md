@@ -1,4 +1,4 @@
-# MySQL CRUD APP
+# Youtube Clone APP
 
 ## API DOCUMENTATION
 
@@ -8,7 +8,7 @@
 
 ## Model Link
 
-["Model Link"](https://drawsql.app/teams/farazs-team/diagrams/social-media)
+[Youtube Clone Model](https://drawsql.app/teams/farazs-team/diagrams/social-media)
 
 ## Problem I faced during design and building this product
 
@@ -30,6 +30,46 @@
 
 - [✅] As program was becoming complex it was difficult to handle import statement so I added
   index.js file in every folder that exports
+
+# Features
+
+# Tech Stack
+
+### Frontend
+
+- [✅] React
+  - [✅] Redux Toolkit
+  - [✅] Tailwind CSS
+  - [✅] React Router
+  - [✅] React hook Forms
+  - [✅] React Icons
+- [✅] bundler
+  - [✅] Vite
+
+### Backend
+
+- [✅] Node and Express
+  - [✅] Cookie Parser (storing cookie)
+  - [✅] Cors
+  - [✅] morgan (loggin)
+  - [✅] winston (logging)
+  - [✅] JWT and Bcrypt
+  - [✅] cloudinary (static storage)
+  - [✅] multer (file upload)
+  - [✅] apicache (caching)
+  - [✅] express rate limiter (rate limiting)
+  - [✅] dotenv (for environment variable)
+
+#### Database
+
+- [✅] MySQL
+  - [✅] mysql2 Node JS Driver
+
+### Dev Dependencies
+
+- [✅] prettier
+- [✅] eslint
+- [✅] nodemon
 
 ## User Controller Methods
 
@@ -67,6 +107,7 @@
 
 ## Best API Practices used
 
+- [✅] Validation
 - [✅] Use resource name (nouns)
 - [✅] Use plurals
 - [✅] Idempotency
@@ -79,3 +120,6 @@
 - [] Resource cross references
 - [✅] Rate Limit
 - [✅] Caching
+- [] Ip Blocking
+- [] Sanitization
+- [] Web app firewall (applicable after hosting)

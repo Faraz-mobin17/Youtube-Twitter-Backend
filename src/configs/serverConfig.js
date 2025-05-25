@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-export const serverConfig = {
+export const serverConfig: {} = {
   HOST: process.env.MYSQL_HOST,
   PASS: process.env.MYSQL_PASS,
   USER: process.env.MYSQL_USER,
