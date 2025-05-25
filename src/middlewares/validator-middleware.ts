@@ -7,7 +7,7 @@ import {
   updateUserParamsSchema,
   tweetSchema,
   commentSchema,
-} from "../schemas/zod-schema.js";
+} from "../utils/validators/zod-schema.js";
 
 const validateSignup = (req: Request, res: Response, next: NextFunction) => {
   const { error } = signupSchema.safeParse(req.body);
