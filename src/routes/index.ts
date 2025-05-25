@@ -6,7 +6,7 @@ import {
   videoRouter,
   likeRouter,
   healthcheckRouter,
-  subscriptionRouter,
+  // subscriptionRouter,
 } from "./v1/index.js";
 
 const apiRouter: Router = express.Router();
@@ -17,5 +17,5 @@ apiRouter.use("/v1/tweets", tweetRouter);
 apiRouter.use("/v1/comments", commentRouter);
 apiRouter.use("/v1/likes", likeRouter);
 apiRouter.use("/v1/ping", healthcheckRouter);
-apiRouter.use("/v1/subscription", subscriptionRouter);
+// apiRouter.use("/v1/subscription", subscriptionRouter);
 export default apiRouter;
