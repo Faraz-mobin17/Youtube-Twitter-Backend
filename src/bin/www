@@ -1,0 +1,124 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+import { createApp } from "../app.js";
+import debug from "debug";
+import http from "http";
+import normalizePort from "../utils/helper/normalizePort.js";
+import { env } from "../config/env.js";
+import { AddressInfo } from "node:net";
+import {connectDB} from "../db/connection.db.js";
+const logger = debug("express-generator:server");
+
+async function main() {
+  try {
+    /**
+     * Get port from environment and store in Express.
+     */
+
+    const port = normalizePort(env.PORT);
+
+    if (!port) {
+      throw new Error("Invalid port number");
+    }
+
+    /**
+     * Connect to MongoDB.
+     * This should be done before starting the server to ensure the database is ready.
+     */
+
+    await connectDB.connect();
+    logger.info("Connected to MongoDB");
+
+    /**
+     * Create HTTP server.
+     */
+    const app = createApp();
+    if (!app) {
+      throw new Error("Failed to create Express application");
+    }
+
+
+    const server = http.createServer(app);
+    app.set("port", port);
+
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+
+    server.listen(port, () => logger.info(`listening on port ${port}`));
+    server.on("listening", onListening);
+    server.on("error", onError);
+    process.on("SIGINT", onSIGINT);
+
+    /**
+     * Handle graceful shutdown on SIGINT.
+     * This allows the server to close connections gracefully when interrupted.
+     */
+
+    function onSIGINT() {
+      logger.error("SIGINT received. Shutting down gracefully...");
+      server.close((err) => {
+        if (err) {
+          logger.error("Error during server shutdown:", err);
+        } else {
+          logger.info("Server shut down gracefully.");
+        }
+        process.exit(err ? 1 : 0);
+      });
+    }
+
+    /**
+     * Event listener for HTTP server "error" event.
+     */
+
+    function onError(error: NodeJS.ErrnoException) {
+      if (error.name !== "Error") {
+        logger.error("An unexpected error occurred:", error);
+        return;
+      }
+      if (error.syscall !== "listen") {
+        throw error;
+      }
+
+      const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+      // handle specific listen errors with friendly messages
+      switch (error.code) {
+        case "EACCES":
+          logger.error(bind + " requires elevated privileges");
+          process.exit(1);
+          break;
+        case "EADDRINUSE":
+          logger.error(bind + " is already in use");
+          process.exit(1);
+          break;
+        default:
+          throw error;
+      }
+    }
+
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+
+    function onListening() {
+      const addr = server.address() as AddressInfo | string | null;
+        if (!addr) {
+            logger.error("Server address is not available.");
+            return;
+        }
+        const bind =
+      typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
+    logger(`Listening on ${bind}`);
+    }
+  } catch (error) {
+    console.error("Error starting the server:", error);
+    process.exit(1);
+  }
+}
+
+main();
