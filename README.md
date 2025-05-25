@@ -1,4 +1,6 @@
-# Youtube Clone APP
+# Project
+
+The app is based on monolith architecture
 
 ## API DOCUMENTATION
 
@@ -31,9 +33,24 @@
 - [✅] As program was becoming complex it was difficult to handle import statement so I added
   index.js file in every folder that exports
 
+- [✅] Migratign whole project to typescript took me a lot to fix bugs other than that I was stuck in when adding the some property to Request Object it took me a while to figure how to take care of that finally fixed it by creating a local.d.ts file and adding a property to the request object.
+
+- [✅] Migrated from using raw SQL to prisma for faster development process.
+
 # Features
 
-# Tech Stack
+- [] on the user channel there will be shuffling button along with the popular oldest and newest
+  tag.
+
+- [] Subscription will be given priority by being default page on the website and there will
+  be separte page as explore like youtube homepage.
+
+- [] there will be feature for favorite channel for those channel you will see the video
+  on the top section of the home page and on the subscriptions tab they will be at the top
+
+- [] When use schedules multiple videos it automatically becomes playlist and shows as a playlist in subscription tab
+
+## Tech Stack
 
 ### Frontend
 
@@ -48,7 +65,7 @@
 
 ### Backend
 
-- [✅] Node and Express
+- [✅] Type Safe Node and Express
   - [✅] Cookie Parser (storing cookie)
   - [✅] Cors
   - [✅] morgan (loggin)
@@ -57,19 +74,21 @@
   - [✅] cloudinary (static storage)
   - [✅] multer (file upload)
   - [✅] apicache (caching)
-  - [✅] express rate limiter (rate limiting)
+  - [❌] express rate limiter (rate limiting)
   - [✅] dotenv (for environment variable)
 
 #### Database
 
 - [✅] MySQL
-  - [✅] mysql2 Node JS Driver
+  - [✅] mysql2 Node JS Driver (migrated to prisma)
 
 ### Dev Dependencies
 
 - [✅] prettier
 - [✅] eslint
 - [✅] nodemon
+
+# Features
 
 ## User Controller Methods
 
