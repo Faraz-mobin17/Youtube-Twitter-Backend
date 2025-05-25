@@ -1,3 +1,5 @@
+import { StatusCodes } from "http-status-codes";
+
 /**
  * @file app.error.ts
  */
@@ -21,7 +23,7 @@ export class InternalServerError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 500;
+    this.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
     this.message = message;
     this.name = "InternalServerError";
   }
@@ -40,7 +42,7 @@ export class BadRequestError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 400;
+    this.statusCode = StatusCodes.BAD_REQUEST;
     this.message = message;
     this.name = "BadRequestError";
   }
@@ -59,7 +61,7 @@ export class NotFoundError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 404;
+    this.statusCode = StatusCodes.NOT_FOUND;
     this.message = message;
     this.name = "NotFoundError";
   }
@@ -77,7 +79,7 @@ export class UnauthorizedError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 401;
+    this.statusCode = StatusCodes.UNAUTHORIZED;
     this.message = message;
     this.name = "UnauthorizedError";
   }
@@ -96,7 +98,7 @@ export class ForbiddenError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 403;
+    this.statusCode = StatusCodes.FORBIDDEN;
     this.message = message;
     this.name = "ForbiddenError";
   }
@@ -115,7 +117,7 @@ export class ConflictError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 409;
+    this.statusCode = StatusCodes.CONFLICT;
     this.message = message;
     this.name = "ConflictError";
   }
@@ -134,7 +136,7 @@ export class NotImplementedError implements AppError {
   message: string;
   name: string;
   constructor(message: string) {
-    this.statusCode = 501;
+    this.statusCode = StatusCodes.NOT_IMPLEMENTED;
     this.message = message;
     this.name = "NotImplementedError";
   }
